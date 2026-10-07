@@ -2,6 +2,16 @@
 
 Every feature or fix gets an entry here, in the same commit. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 2.2.0
+
+**Website**
+- New landing page on GitHub Pages: **https://nandinitandon21.github.io/flipbook-studio/**. It's in the same magazine design, with a **live flipbook demo** you can turn (the real viewer), a "Why this exists" story, how it works, features, an FAQ, and a download button. It's self-contained, with no trackers or outside requests.
+- Source in `site/`. `build.py` now also writes `docs/index.html` (and `.nojekyll`) and fills in the current version and download size.
+- The repo's About link now points to the landing page.
+
+**Viewer**
+- New `embedded` option for books placed inside a longer page. It doesn't steal focus, and the arrow and space keys only turn pages while the book is focused, so page scrolling still works.
+
 ## 2.1.0
 
 **Easier navigation**

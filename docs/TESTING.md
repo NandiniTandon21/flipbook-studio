@@ -5,7 +5,7 @@
 ```bash
 npm install
 npx playwright install chromium firefox webkit   # once
-npm test                                          # build, then test all three engines
+npm test                                          # build, then app + landing-page tests in all three engines
 node tests/e2e.mjs webkit                         # one engine only
 ```
 
@@ -27,6 +27,10 @@ node tests/e2e.mjs webkit                         # one engine only
 | no page errors | general health |
 
 Screenshots of each step, plus each engine's exported flipbook, are written to `tests/artifacts/` (git-ignored). Look through them after visual changes.
+
+## Landing page
+
+`tests/site.mjs` opens `docs/index.html` in all three engines. It checks that every Download button points to the latest release file, the version is shown, the space bar scrolls the page (instead of flipping the demo), the demo flipbook turns, the nav links scroll to their sections, and there are no outside requests and no errors.
 
 ## Fixtures
 

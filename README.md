@@ -1,5 +1,7 @@
 # Flipbook Studio
 
+**Website: [nandinitandon21.github.io/flipbook-studio](https://nandinitandon21.github.io/flipbook-studio/)**, which has a live demo, the story behind it, and the download.
+
 Turn PDFs and images into **flipbook magazines** with horizontal page turns and **searchable, selectable text**. Then keep them and share them as flipbooks, not as PDFs.
 
 **Private and offline.** Everything runs on your computer. There's no account, no server, and nothing gets uploaded. A security policy built into the page blocks every network request, and the tests check that it does.
@@ -57,9 +59,10 @@ src/
   viewer/            the flip engine, also copied into every exported flipbook
     viewer.js
     viewer.css
+site/                landing page source (index.html, landing.css, landing.js)
 vendor/              pinned third-party engines + fonts (see vendor/README.md)
 tests/               end-to-end tests + fixtures
-docs/                ARCHITECTURE.md, TESTING.md
+docs/                ARCHITECTURE.md, TESTING.md + the built landing page (index.html, served by GitHub Pages)
 tools/privacy-scan.sh  pre-publish scan for paths/secrets (npm run scan)
 build.py             inlines everything → dist/Flipbook-Studio.html
 dist/                the built single-file app (what users download)

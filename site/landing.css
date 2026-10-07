@@ -1,0 +1,107 @@
+/* ==========================================================================
+   Flipbook Studio — landing page
+   Same system as the app: paper/ink, Advercase (if installed) → EB Garamond,
+   IBM Plex Mono for labels. Deep-brown stage for the live demo.
+   ========================================================================== */
+:root {
+  --paper: #f2eee6;
+  --card: #fbf9f4;
+  --ink: #1a1714;
+  --soft: #6e675c;
+  --rule: rgba(26, 23, 20, .16);
+  --brown: #2a211b;
+  --cream: #efe7d8;
+  --accent: #c2371f;
+  --display: "FS Advercase", "EB Garamond", Garamond, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --gutter: clamp(18px, 4vw, 56px);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 19px/1.55 var(--display); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+code { font: .85em var(--mono); background: rgba(26,23,20,.07); padding: 1px 5px; }
+
+/* type */
+.display { font-family: var(--display); font-weight: 400; letter-spacing: -.025em; line-height: .95; margin: 0; }
+.display em { font-style: italic; }
+.kicker { font: 500 12px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin: 0; }
+.kicker.light, .meta.light { color: rgba(239, 231, 216, .65); }
+.lede { font-size: clamp(19px, 1.7vw, 23px); line-height: 1.45; margin: 0; max-width: 34ch; }
+.meta { font: 400 12.5px/1.5 var(--mono); color: var(--soft); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; border: 1px solid var(--ink); padding: 11px 18px; font: 500 12.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; transition: background .15s, color .15s; }
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: #000; }
+.btn-light { background: var(--cream); color: var(--brown); border-color: var(--cream); }
+.btn-light:hover { background: #fff; }
+.btn-lg { padding: 17px 28px; font-size: 13.5px; }
+
+/* nav */
+.nav { position: sticky; top: 0; z-index: 50; height: 64px; display: flex; align-items: center; gap: 28px; padding: 0 var(--gutter); background: var(--paper); border-bottom: 1px solid var(--ink); }
+.brand { font: 400 26px/1 var(--display); letter-spacing: -.02em; text-decoration: none; }
+.brand em { font-style: italic; }
+.nav-links { margin-left: auto; display: flex; gap: 26px; }
+.nav-links a { font: 500 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; text-decoration: none; padding: 6px 0; border-bottom: 1px solid transparent; }
+.nav-links a:hover { border-bottom-color: var(--ink); }
+
+/* hero */
+.hero { padding: clamp(36px, 6vh, 96px) var(--gutter) clamp(32px, 5vh, 64px); display: grid; gap: clamp(20px, 3vw, 36px); }
+.hero-title { font-size: clamp(56px, min(9.5vw, 15vh), 170px); }
+.hero-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 28px; border-top: 1px solid var(--ink); padding-top: 26px; }
+.hero-actions { display: grid; gap: 10px; justify-items: start; }
+
+/* live demo */
+.demo { background: var(--brown); color: var(--cream); }
+.demo-label { padding: 18px var(--gutter) 0; }
+.demo-stage { height: min(78vh, 760px); min-height: 440px; }
+.demo-stage .fb-root { background: transparent; }
+
+/* sections */
+section.why, section.how, section.features, section.faq { padding: clamp(56px, 8vw, 120px) var(--gutter); border-bottom: 1px solid var(--rule); }
+section > .kicker { margin-bottom: 28px; }
+
+.why-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: start; }
+.why-title { font-size: clamp(40px, 5vw, 76px); }
+.why-body p { margin: 0 0 1.1em; max-width: 46ch; }
+.why-body em { font-style: italic; color: var(--accent); }
+.why-body .sign { font: 500 13px/1.5 var(--mono); letter-spacing: .04em; color: var(--ink); border-top: 1px solid var(--ink); padding-top: 14px; margin-top: 28px; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
+.steps li { padding: 26px 28px 10px 0; }
+.steps li + li { border-left: 1px solid var(--rule); padding-left: 28px; }
+.step-no { font: 400 clamp(64px, 7vw, 110px)/1 var(--display); letter-spacing: -.03em; color: var(--accent); }
+.steps h3 { font: 400 32px/1.05 var(--display); margin: 14px 0 10px; letter-spacing: -.01em; }
+.steps p { margin: 0; color: var(--soft); max-width: 32ch; }
+
+.feature-list { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(28px, 5vw, 80px); }
+.feature-list > div { display: grid; grid-template-columns: minmax(150px, .8fr) 1.2fr; gap: 20px; padding: 22px 0; border-top: 1px solid var(--rule); }
+.feature-list dt { font: 400 26px/1.1 var(--display); letter-spacing: -.01em; }
+.feature-list dd { margin: 0; color: var(--soft); font-size: 17.5px; }
+
+.faq-list { border-top: 1px solid var(--ink); max-width: 980px; }
+.faq details { border-bottom: 1px solid var(--rule); }
+.faq summary { list-style: none; cursor: pointer; padding: 22px 40px 22px 0; position: relative; font: 400 clamp(22px, 2.4vw, 30px)/1.2 var(--display); letter-spacing: -.01em; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 4px; top: 18px; font: 400 30px/1 var(--mono); transition: transform .2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { margin: -6px 0 24px; max-width: 62ch; color: var(--soft); }
+
+.cta { background: var(--brown); color: var(--cream); padding: clamp(64px, 10vw, 150px) var(--gutter); display: grid; justify-items: start; gap: 30px; }
+.cta-title { font-size: clamp(56px, 10vw, 160px); }
+
+.footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 30px; padding: 22px var(--gutter); font: 400 12px/1.5 var(--mono); color: var(--soft); }
+.footer a { text-underline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .nav-cta { margin-left: auto; }
+  .why-grid, .feature-list { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .steps li + li { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); }
+  .feature-list > div { grid-template-columns: 1fr; gap: 6px; }
+  .demo-stage { height: 62vh; min-height: 360px; }
+}

@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "python3 build.py",
-    "test": "python3 build.py && node tests/e2e.mjs",
+    "test": "python3 build.py && node tests/e2e.mjs && node tests/site.mjs",
     "scan": "bash tools/privacy-scan.sh"
   },
   "devDependencies": {

@@ -13,6 +13,10 @@ Flipbook Studio is a static web app that ships as **one HTML file**. It has no s
 
 The **viewer** (`src/viewer/`) is the one piece both of them share. The Studio runs it for the "Read" overlay. When it exports, it copies the viewer's source text (`#viewer-src`, `#viewer-css`, `#fonts-css`) straight into the new file, so the reading experience is the same code in both places.
 
+## Landing page (GitHub Pages)
+
+`site/` holds the landing page source. `build.py` inlines the fonts, the **real viewer** (`src/viewer/`), `landing.css`, and `landing.js` into `docs/index.html`, and fills in the version (from CHANGELOG.md) and download size. GitHub Pages serves `docs/` from `main`, and `.nojekyll` makes it serve the file as-is. The live demo pages are drawn on `<canvas>` with the site fonts and mounted with `FlipBook.mount(..., {embedded: true})`. The page makes no outside requests, and `tests/site.mjs` checks that.
+
 ## Screens
 
 ```

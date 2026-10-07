@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Build Flipbook Studio into ONE offline HTML file.
+Build Flipbook Studio.
 
-    python3 build.py            ->  dist/Flipbook-Studio.html
+    python3 build.py   ->  dist/Flipbook-Studio.html   the offline app (one file)
+                       ->  docs/index.html             the landing page (GitHub Pages)
 
-The template src/studio/index.html contains /*@@NAME@@*/ markers. Each marker is
-replaced with the file(s) listed in PARTS below. No third-party Python packages,
-no network: everything comes from src/ and vendor/.
+Templates (src/studio/index.html, site/index.html) contain /*@@NAME@@*/ markers.
+Each marker is replaced with the content listed in PARTS / site_parts below.
+No third-party Python packages, no network: everything comes from src/, site/ and vendor/.
 """
 from base64 import b64encode
 from pathlib import Path
@@ -15,6 +16,7 @@ ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "src"
 VENDOR = ROOT / "vendor"
 OUT = ROOT / "dist" / "Flipbook-Studio.html"
+SITE_OUT = ROOT / "docs" / "index.html"
 
 # Studio modules, in load order (each attaches to window.Studio).
 STUDIO_JS = ["util.js", "storage.js", "ocr.js", "importers.js", "exporter.js", "app.js"]
@@ -75,17 +77,44 @@ PARTS = {
 }
 
 
-def main() -> None:
-    html = read(SRC / "studio" / "index.html")
-    for name, produce in PARTS.items():
+def fill(template: str, parts: dict) -> str:
+    """Replace each /*@@NAME@@*/ marker (must appear exactly once) with its content."""
+    for name, produce in parts.items():
         marker = f"/*@@{name}@@*/"
-        count = html.count(marker)
+        count = template.count(marker)
         if count != 1:
             raise SystemExit(f"build: expected marker {marker} exactly once, found {count}")
-        html = html.replace(marker, produce())
+        template = template.replace(marker, produce())
+    return template
+
+
+def version() -> str:
+    """Current version = first '## x.y.z' heading in CHANGELOG.md."""
+    for line in read(ROOT / "CHANGELOG.md").splitlines():
+        if line.startswith("## ") and line[3:4].isdigit():
+            return line[3:].strip()
+    return "dev"
+
+
+def main() -> None:
+    # 1. the app: dist/Flipbook-Studio.html
     OUT.parent.mkdir(exist_ok=True)
-    OUT.write_text(html, encoding="utf-8")
+    OUT.write_text(fill(read(SRC / "studio" / "index.html"), PARTS), encoding="utf-8")
     print(f"built {OUT.relative_to(ROOT)}  ({OUT.stat().st_size / 1e6:.1f} MB)")
+
+    # 2. the landing page (GitHub Pages serves docs/): docs/index.html
+    site_parts = {
+        "FONTS_CSS": fonts_css,
+        "VIEWER_CSS": PARTS["VIEWER_CSS"],
+        "VIEWER_JS": PARTS["VIEWER_JS"],
+        "LANDING_CSS": lambda: read(ROOT / "site" / "landing.css"),
+        "LANDING_JS": lambda: script_safe(read(ROOT / "site" / "landing.js")),
+        "VERSION": version,
+        "APP_SIZE": lambda: f"{round(OUT.stat().st_size / 1e6)} MB",
+    }
+    SITE_OUT.write_text(fill(read(ROOT / "site" / "index.html"), site_parts), encoding="utf-8")
+    (SITE_OUT.parent / ".nojekyll").write_text("")   # serve index.html as-is, no Jekyll processing
+    print(f"built {SITE_OUT.relative_to(ROOT)}  ({SITE_OUT.stat().st_size / 1e3:.0f} KB)")
 
 
 if __name__ == "__main__":
