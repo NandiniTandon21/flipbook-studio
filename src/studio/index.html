@@ -6,7 +6,7 @@
   See docs/ARCHITECTURE.md for the full map.
 
   Screens:  Home (#view-home)  →  Editor (#view-edit)  →  Reader overlay (#viewer)
-  Layout:   left column (logo + vertical colophon) | main column of hairline-ruled rows.
+  Layout:   left column (logo + margin notes) | main column of hairline-ruled rows.
 -->
 <html lang="en">
 <head>
@@ -23,13 +23,17 @@
 </head>
 <body>
 
-<!-- ───────────── Left column: logo + vertical colophon ───────────── -->
+<!-- ───────────── Left column: logo + newspaper-style margin notes ───────────── -->
 <aside class="side">
   <button class="logo" data-go="home" aria-label="Flipbook Studio — home">
     <svg viewBox="0 0 120 84" aria-hidden="true"><path d="M60 16 C46 6 22 6 6 12 V78 C22 72 46 72 60 82 C74 72 98 72 114 78 V12 C98 6 74 6 60 16 Z M60 16 V82"/></svg>
     <span>Flipbook<br><em>Studio</em></span>
   </button>
-  <p class="colophon">Offline · private · nothing is uploaded — your flipbooks stay on this computer</p>
+  <div class="colophon">
+    <p><b>Offline.</b> Works without the internet once downloaded.</p>
+    <p><b>Private.</b> Nothing you add is ever uploaded. Your flipbooks stay on this computer.</p>
+    <p><b>Yours.</b> Download any flipbook as one file and keep it forever.</p>
+  </div>
 </aside>
 
 <div class="main">

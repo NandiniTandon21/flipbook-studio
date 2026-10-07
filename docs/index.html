@@ -3,7 +3,7 @@
   Flipbook Studio — landing page (GitHub Pages).
   Source template: built by `python3 build.py` into docs/index.html.
   Self-contained: fonts + the real flipbook viewer are inlined; no trackers, no external requests.
-  Layout: same frame as the app — left column (logo + vertical colophon) | ruled entries.
+  Layout: same frame as the app — left column (logo + margin notes) | ruled entries.
 -->
 <html lang="en">
 <head>
@@ -181,8 +181,12 @@ code { font: .82em var(--mono); }
 .logo svg { width: 92px; height: auto; fill: none; stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
 .logo span { font: 400 30px/.95 var(--display); letter-spacing: -.02em; }
 .logo em { font-style: italic; }
-.colophon { margin: 0 0 0 4px; writing-mode: vertical-rl; font: 400 12.5px/1.6 var(--mono); color: var(--soft); max-height: 62vh; }
-.colophon a { text-underline-offset: 3px; }
+/* margin notes: short serif paragraphs in a narrow column, divided by hairlines (newspaper sidebar) */
+.colophon { display: grid; gap: 0; max-width: 158px; font: 400 14px/1.42 var(--display); color: var(--soft); hyphens: auto; -webkit-hyphens: auto; }
+.colophon p { margin: 0; padding: 11px 0 12px; border-top: 1px solid rgba(64, 31, 40, .35); }
+.colophon p:last-child { border-bottom: 1px solid rgba(64, 31, 40, .35); }
+.colophon b { font-weight: 600; color: var(--ink); }
+.colophon a { color: var(--ink); text-underline-offset: 3px; }
 .main { margin-left: var(--side); padding: 0 var(--gap) 80px 0; }
 
 /* header */
@@ -245,7 +249,11 @@ code { font: .82em var(--mono); }
     <svg viewBox="0 0 120 84" aria-hidden="true"><path d="M60 16 C46 6 22 6 6 12 V78 C22 72 46 72 60 82 C74 72 98 72 114 78 V12 C98 6 74 6 60 16 Z M60 16 V82"/></svg>
     <span>Flipbook<br><em>Studio</em></span>
   </a>
-  <p class="colophon">Free · offline · no sign-up — open source, MIT licence — <a href="https://github.com/NandiniTandon21/flipbook-studio">source on GitHub</a></p>
+  <div class="colophon">
+    <p><b>Free.</b> No account, no trial, no watermark.</p>
+    <p><b>Offline.</b> Nothing you add is ever uploaded.</p>
+    <p><b>Open source.</b> MIT licence. <a href="https://github.com/NandiniTandon21/flipbook-studio">Source on GitHub</a>.</p>
+  </div>
 </aside>
 
 <div class="main" id="top">
@@ -349,7 +357,7 @@ code { font: .82em var(--mono); }
 <script>
   // Filled in by build.py
   window.SITE = {
-    version: "2.4.0",
+    version: "2.4.1",
     size: "11 MB",
     download: "https://github.com/NandiniTandon21/flipbook-studio/releases/latest/download/Flipbook-Studio.html"
   };

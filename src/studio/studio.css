@@ -1,7 +1,7 @@
 /* ==========================================================================
    Flipbook Studio — quiet editorial UI (Utrecht-style)
    One background (pale cornflower), one ink (plum), hairline rules, lots of air.
-   Left column: logo + vertical colophon. Main column: ruled rows.
+   Left column: logo + margin notes. Main column: ruled rows.
    Display: Advercase (if installed) → EB Garamond.  Small labels: IBM Plex Mono.
    ========================================================================== */
 
@@ -57,7 +57,12 @@ button, input, select { font: inherit; color: inherit; }
 .logo svg { width: 92px; height: auto; fill: none; stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
 .logo span { font: 400 30px/.95 var(--display); letter-spacing: -.02em; }
 .logo em { font-style: italic; }
-.colophon { margin: 0 0 0 4px; writing-mode: vertical-rl; font: 400 12.5px/1.6 var(--mono); color: var(--soft); max-height: 60vh; }
+/* margin notes: short serif paragraphs in a narrow column, divided by hairlines (newspaper sidebar) */
+.colophon { display: grid; gap: 0; max-width: 158px; font: 400 14px/1.42 var(--display); color: var(--soft); hyphens: auto; -webkit-hyphens: auto; }
+.colophon p { margin: 0; padding: 11px 0 12px; border-top: 1px solid rgba(64, 31, 40, .35); }
+.colophon p:last-child { border-bottom: 1px solid rgba(64, 31, 40, .35); }
+.colophon b { font-weight: 600; color: var(--ink); }
+.colophon a { color: var(--ink); text-underline-offset: 3px; }
 .main { margin-left: var(--side); padding: 0 var(--gap) 120px 0; min-height: 100vh; }
 
 /* ---- header -------------------------------------------------------------- */

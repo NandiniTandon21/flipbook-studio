@@ -2,11 +2,15 @@
 
 Every feature or fix gets an entry here, in the same commit. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 2.4.1
+
+- **Readable left margin.** The vertical text in the left column is now horizontal *margin notes*, like a newspaper sidebar: short serif paragraphs with a bold lead-in (*Offline. / Private. / Yours.* in the app; *Free. / Offline. / Open source.* on the website), divided by hairlines. Same treatment in the app and the website.
+
 ## 2.4.0
 
 **Calmer, more editorial layout** (modelled on utrecht.jp), for the app and the website
 - **Pale cornflower background** `#BDD5E2` with **plum** `#401F28` as the single ink. Bone is used for page sheets and the search panel. The plum fill is kept for the one main action (*+ New flipbook* / *Download*).
-- **Frame:** a slim left column with the logo (a line-drawn open book) and a vertical colophon. To the right, a small info row, a hairline, the main navigation as plain text links with one filled button, and then content separated by long hairline rules.
+- **Frame:** a slim left column with the logo (a line-drawn open book) and margin notes (vertical text at first, made horizontal in 2.4.1). To the right, a small info row, a hairline, the main navigation as plain text links with one filled button, and then content separated by long hairline rules.
 - **Removed:** filled cells, the boxed grid, the full-width nav cells, and the footer. The website's colophon (licence, source link) now sits vertically in the left column.
 - **App:** Home is a quiet grid of covers with a bold title, the page count, the date, and text-link actions. The editor is a breadcrumb + status line, a large title with Preview / Save as links and Download as the one button, then a single line of steps and tools, then the spreads with captions.
 - **Website:** entries in two columns (the live flipbook beside the intro, then Why, FAQ, and the download), and three-column How / Features rows. There's no footer.
