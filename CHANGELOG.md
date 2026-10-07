@@ -1,5 +1,17 @@
 # Changelog
 
+Every feature or fix gets an entry here, in the same commit. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## 2.0.1
+
+**Docs & UI**
+- The OCR toggle now says **"English only"**. Its tooltip explains that text already inside a PDF is kept in any language.
+- README: added a *Languages* note and a *Roadmap* (optional offline OCR language packs, and CJK PDF text support).
+- Added CONTRIBUTING.md (project rules: keep the changelog updated, run tests and the privacy scan before a release).
+
+**Tooling**
+- `npm run scan` (`tools/privacy-scan.sh`) checks the working tree and the full git history for local paths, tokens, private keys, and personal emails.
+
 ## 2.0.0
 
 **Searchable flipbooks**

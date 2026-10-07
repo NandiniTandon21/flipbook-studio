@@ -17,13 +17,20 @@ There's nothing to install and you don't need to be online. The same file works 
 | | |
 |---|---|
 | **Upload** | PDF, JPG, PNG, WebP, GIF, AVIF, and **HEIC/HEIF** (iPhone photos, decoded in every browser) |
-| **Searchable text** | PDF text is kept along with where it sits on the page. Text in images and scanned pages is read by built-in **OCR** (English). |
+| **Searchable text** | PDF text is kept along with where it sits on the page. Text in images and scanned pages is read by built-in **OCR**. |
 | **Arrange** | Pages are laid out the way the magazine opens: the cover, then spreads. Drag to reorder, or use the ← → buttons. You can also add blank pages, reverse the order, or sort A–Z. |
 | **Read** | Two-page spreads with a 3D page turn. Click, swipe, use the arrow keys or the slider, or go full screen. **Search** (⌘/Ctrl-F) jumps to each match and highlights it. You can select and copy text. |
 | **Library** | Saves your flipbooks in this browser so you can read, edit, download, or delete them. Your work in progress autosaves. |
 | **Download** | Creates one `.html` flipbook that opens offline in any browser and can still be searched. Drop it back into Studio to edit it. |
 
+> **Languages:** OCR (reading text in images and scanned pages) supports **English only for now**. Text that's already inside a PDF is kept in any language. One exception: some Chinese, Japanese, and Korean PDFs need extra pdf.js data that isn't bundled yet. More OCR languages are planned (see *Roadmap*).
+
 > The Library lives in this browser's storage. The `.html` files you download are your permanent copies.
+
+## Roadmap
+
+- **More OCR languages.** Tesseract supports 100+ languages, but each language model adds about 2–15 MB. The plan is optional *language packs*: download a language file once, drop it into Studio, and it's kept offline in the Library storage. That way the app itself stays small.
+- **CJK PDF text.** Bundle pdf.js character maps (cMaps) so text extraction works for every Chinese, Japanese, and Korean PDF.
 
 ## Browser support
 
