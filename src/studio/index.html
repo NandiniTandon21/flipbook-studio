@@ -6,7 +6,7 @@
   See docs/ARCHITECTURE.md for the full map.
 
   Screens:  Home (#view-home)  →  Editor (#view-edit)  →  Reader overlay (#viewer)
-  Layout:   a ruled grid of cells (1px plum rules on bone), alternating cornflower fills.
+  Layout:   left column (logo + vertical colophon) | main column of hairline-ruled rows.
 -->
 <html lang="en">
 <head>
@@ -23,99 +23,117 @@
 </head>
 <body>
 
-<!-- ───────────── Header: brand row + full-width nav cells ───────────── -->
-<header class="header">
-  <div class="header-top">
-    <button class="brand" data-go="home" aria-label="Flipbook Studio — home">Flipbook <em>Studio</em></button>
-    <p class="header-info">Offline · private<br>nothing is uploaded</p>
-  </div>
-  <nav class="navcells" aria-label="Main">
-    <button class="navcell" data-go="home" id="navHome">My flipbooks <span id="libCount" class="count"></span></button>
-    <button class="navcell" id="navNew">+ New flipbook</button>
-    <button class="navcell" id="navImport">Import a flipbook file</button>
-  </nav>
-</header>
+<!-- ───────────── Left column: logo + vertical colophon ───────────── -->
+<aside class="side">
+  <button class="logo" data-go="home" aria-label="Flipbook Studio — home">
+    <svg viewBox="0 0 120 84" aria-hidden="true"><path d="M60 16 C46 6 22 6 6 12 V78 C22 72 46 72 60 82 C74 72 98 72 114 78 V12 C98 6 74 6 60 16 Z M60 16 V82"/></svg>
+    <span>Flipbook<br><em>Studio</em></span>
+  </button>
+  <p class="colophon">Offline · private · nothing is uploaded — your flipbooks stay on this computer</p>
+</aside>
 
-<main>
+<div class="main">
+  <!-- ───────────── Header: small row, rule, main nav ───────────── -->
+  <header class="header">
+    <div class="header-small">
+      <span>Free · no account · works offline</span>
+      <span id="libCount" class="num"></span>
+    </div>
+    <nav class="mainnav" aria-label="Main">
+      <button class="navlink" data-go="home" id="navHome">My flipbooks</button>
+      <button class="navlink" id="navImport">Import a flipbook file</button>
+      <button class="btn btn-fill" id="navNew">+ New flipbook</button>
+    </nav>
+  </header>
+
   <!-- ───────────── Home ───────────── -->
   <section id="view-home" class="view">
-    <div class="pagehead">
-      <h1 class="display">My flipbooks</h1>
-      <p class="pagehead-meta" id="homeMeta">Saved in this browser · downloads are your permanent copies</p>
+    <div class="row pagehead">
+      <h1 class="title">My flipbooks</h1>
+      <p class="small" id="homeMeta">Saved in this browser · downloads are your permanent copies</p>
     </div>
 
-    <div class="resume" id="resume" hidden>
+    <div class="row resume" id="resume" hidden>
       <div class="resume-cover"><img id="resumeCover" alt=""></div>
       <div class="resume-text">
-        <span class="label">Not saved yet</span>
+        <span class="small">Not saved yet</span>
         <h2 id="resumeTitle"></h2>
-        <span class="small" id="resumeMeta"></span>
+        <p class="small" id="resumeMeta"></p>
+        <div class="actions">
+          <button class="btn btn-fill" id="resumeGo">Continue editing →</button>
+          <button class="link" id="resumeDiscard">Discard</button>
+        </div>
       </div>
-      <button class="cellbtn cellbtn-fill" id="resumeGo">Continue editing →</button>
-      <button class="cellbtn" id="resumeDiscard">Discard</button>
     </div>
 
-    <div class="grid shelf" id="shelf"></div>
+    <div class="row shelf" id="shelf"></div>
   </section>
 
   <!-- ───────────── Editor ───────────── -->
   <section id="view-edit" class="view" hidden>
     <div class="editbar">
-      <button class="cellbtn back" data-go="home">← My flipbooks</button>
-      <label class="title-field">
-        <span class="label">Title</span>
-        <input id="title" placeholder="Untitled flipbook" maxlength="120" autocomplete="off" spellcheck="false">
-      </label>
-      <span id="saveState" class="save-state"></span>
-      <button class="cellbtn" id="bRead">Preview</button>
-      <button class="cellbtn" id="bSave">Save</button>
-      <button class="cellbtn cellbtn-fill" id="bDownload">Download ↓</button>
+      <div class="crumbs">
+        <button class="link" data-go="home">← My flipbooks</button>
+        <span id="saveState" class="small save-state"></span>
+      </div>
+      <div class="editbar-main">
+        <label class="title-field">
+          <span class="visually-hidden">Title</span>
+          <input id="title" placeholder="Untitled flipbook" maxlength="120" autocomplete="off" spellcheck="false">
+        </label>
+        <div class="actions">
+          <button class="link" id="bRead">Preview</button>
+          <button class="link" id="bSave">Save</button>
+          <button class="btn btn-fill" id="bDownload">Download ↓</button>
+        </div>
+      </div>
     </div>
 
-    <ol class="steps" id="steps">
-      <li><span class="step-no">01</span> Add PDFs or images</li>
-      <li><span class="step-no">02</span> Drag pages into order</li>
-      <li><span class="step-no">03</span> Preview, save or download</li>
-    </ol>
-
-    <div class="toolrow" role="toolbar" aria-label="Pages">
-      <button class="cellbtn" id="tAdd">+ Add pages</button>
-      <button class="cellbtn" id="tBlank">Blank page</button>
-      <button class="cellbtn" id="tReverse">Reverse</button>
-      <button class="cellbtn" id="tSort">Sort A–Z</button>
-      <button class="cellbtn" id="tClear">Remove all</button>
-      <details class="settings">
-        <summary class="cellbtn">Settings</summary>
-        <div class="settings-panel">
-          <label class="setting">PDF page quality
-            <select id="quality">
-              <option value="1600">Standard — smaller files</option>
-              <option value="2400" selected>High — crisp text</option>
-              <option value="3200">Print — largest files</option>
-            </select>
-          </label>
-          <label class="setting switch" title="Reads the words in images and scanned pages so they can be searched. Text already inside a PDF is kept in any language.">
-            <input type="checkbox" id="ocr" checked>
-            <span>Read text in images (OCR)<br><small>English only for now</small></span>
-          </label>
-        </div>
-      </details>
+    <div class="row toolbar">
+      <ol class="steps" id="steps">
+        <li>1 Add PDFs or images</li>
+        <li>2 Drag pages into order</li>
+        <li>3 Preview, save or download</li>
+      </ol>
+      <div class="tools" role="toolbar" aria-label="Pages">
+        <button class="link" id="tAdd">+ Add pages</button>
+        <button class="link" id="tBlank">Blank page</button>
+        <button class="link" id="tReverse">Reverse</button>
+        <button class="link" id="tSort">Sort A–Z</button>
+        <button class="link" id="tClear">Remove all</button>
+        <details class="settings">
+          <summary class="link">Settings</summary>
+          <div class="settings-panel">
+            <label class="setting">PDF page quality
+              <select id="quality">
+                <option value="1600">Standard — smaller files</option>
+                <option value="2400" selected>High — crisp text</option>
+                <option value="3200">Print — largest files</option>
+              </select>
+            </label>
+            <label class="setting switch" title="Reads the words in images and scanned pages so they can be searched. Text already inside a PDF is kept in any language.">
+              <input type="checkbox" id="ocr" checked>
+              <span>Read text in images (OCR)<br><small>English only for now</small></span>
+            </label>
+          </div>
+        </details>
+      </div>
     </div>
 
     <div class="board" id="board">
       <div class="drop" id="drop">
-        <h2 class="display drop-title">Drop PDFs &amp; images here</h2>
-        <p class="drop-text">Each PDF page becomes a magazine page. You can arrange them next.</p>
-        <button class="cellbtn cellbtn-fill cellbtn-lg" id="dropPick">Choose files</button>
+        <h2 class="title">Drop PDFs &amp; images here</h2>
+        <p>Each PDF page becomes a magazine page. You can arrange them next.</p>
+        <button class="btn btn-fill btn-lg" id="dropPick">Choose files</button>
         <p class="small">PDF · JPG · PNG · HEIC · WEBP — text in images is read in English</p>
       </div>
       <div id="pagesArea" hidden>
-        <p class="hint">The first page is the <b>cover</b>. Drag pages to reorder, or use the arrows. Double-click a page to preview from there.</p>
-        <div class="grid spreads" id="spreads"></div>
+        <p class="small hint">The first page is the cover. Drag pages to reorder, or use the arrows. Double-click a page to preview from there.</p>
+        <div class="spreads" id="spreads"></div>
       </div>
     </div>
   </section>
-</main>
+</div>
 
 <div class="viewer" id="viewer" hidden></div>
 <div class="status" id="status" hidden>

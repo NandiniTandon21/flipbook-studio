@@ -66,8 +66,8 @@
         mono(x, 'FREE · OFFLINE · NO SIGN-UP', W - 90, 130, C.bone, 'right');
         rule(x, 170, C.boneSoft);
         x.fillStyle = C.bone;
-        x.font = '400 330px ' + SERIF; x.fillText('Flipbook', 70, 760);
-        x.font = 'italic 400 330px ' + SERIF; x.fillText('Studio', 70, 1060);
+        x.font = '400 270px ' + SERIF; x.fillText('Flipbook', 80, 760);
+        x.font = 'italic 400 270px ' + SERIF; x.fillText('Studio', 80, 1010);
         x.font = '400 64px ' + SERIF; wrap(x, 'PDFs & images, turned into magazines you can keep.', 90, 1260, W - 260, 78);
         mono(x, 'CLICK OR SWIPE TO TURN →', 90, 1510, C.boneSoft);
       }),
@@ -84,10 +84,10 @@
       }),
       // 3–5 — how
       stepPage(C.chocolate, C.bone, C.boneSoft, '01', 'Drop in PDFs & images.', 'Every PDF page becomes a magazine page. iPhone HEIC photos work too.', 'HOW IT WORKS'),
-      stepPage(C.powder, C.plum, C.plumSoft, '02', 'Arrange the spreads.', 'Drag pages into order. The cover sits alone, then pages open in pairs, like a real magazine.', 'HOW IT WORKS'),
+      stepPage(C.plum, C.bone, C.boneSoft, '02', 'Arrange the spreads.', 'Drag pages into order. The cover sits alone, then pages open in pairs, like a real magazine.', 'HOW IT WORKS'),
       stepPage(C.bone, C.plum, C.plumSoft, '03', 'Read it. Keep it.', 'Download the flipbook as one file that opens offline in any browser, forever.', 'HOW IT WORKS'),
       // 6 — back cover
-      page(C.plum, function (x) {
+      page(C.chocolate, function (x) {
         x.fillStyle = C.bone; x.font = '400 150px ' + SERIF;
         var y = wrap(x, 'Nothing you add is ever uploaded.', 90, 520, W - 180, 150);
         x.fillStyle = C.boneSoft; x.font = '400 52px ' + SERIF;

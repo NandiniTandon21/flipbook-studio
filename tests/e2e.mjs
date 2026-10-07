@@ -125,7 +125,7 @@ async function run(name) {
     await page.waitForFunction(() => window.Studio && window.Studio.app);
     await page.waitForTimeout(800);
     const after = await page.evaluate(() => ({ draft: Studio.app.state.pages.length, lib: document.getElementById('libCount').textContent }));
-    check('saved to library + survives reload', /Saved/.test(saveMsg) && after.lib === '01' && after.draft === 9, `${saveMsg} | ${JSON.stringify(after)}`);
+    check('saved to library + survives reload', /Saved/.test(saveMsg) && after.lib.startsWith('01') && after.draft === 9, `${saveMsg} | ${JSON.stringify(after)}`);
     check('no unsaved-work card after saving', !(await page.isVisible('#resume')));
     await page.screenshot({ path: path.join(ART, `${name}-5-library.png`) });
     await page.click('.book [data-a="edit"]');
@@ -158,7 +158,7 @@ async function run(name) {
     // ---- import the downloaded file back into the library
     await page.click('#navHome');
     await page.setInputFiles('#importInput', exported);
-    await page.waitForFunction(() => document.getElementById('libCount').textContent === '02', null, { timeout: 60000 });
+    await page.waitForFunction(() => document.getElementById('libCount').textContent.startsWith('02'), null, { timeout: 60000 });
     check('re-import flipbook file', true);
   } catch (e) {
     check('run completed', false, e.message.split('\n')[0]);

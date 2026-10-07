@@ -3,7 +3,7 @@
   Flipbook Studio — landing page (GitHub Pages).
   Source template: built by `python3 build.py` into docs/index.html.
   Self-contained: fonts + the real flipbook viewer are inlined; no trackers, no external requests.
-  Layout: the same ruled grid as the app (plum rules on bone, cornflower cells).
+  Layout: same frame as the app — left column (logo + vertical colophon) | ruled entries.
 -->
 <html lang="en">
 <head>
@@ -18,83 +18,90 @@
 </head>
 <body>
 
-<header class="header">
-  <div class="header-top">
-    <a class="brand" href="#top">Flipbook <em>Studio</em></a>
-    <p class="header-info">Free · offline · no sign-up<br><span data-version></span> · <span data-size></span></p>
-    <a class="header-link" href="https://github.com/NandiniTandon21/flipbook-studio">Source on GitHub ↗</a>
-  </div>
-  <nav class="navcells" aria-label="Sections">
-    <a class="navcell" href="#why">Why</a>
-    <a class="navcell" href="#how">How it works</a>
-    <a class="navcell" href="#features">Features</a>
-    <a class="navcell" href="#faq">FAQ</a>
-    <a class="navcell navcell-fill" data-download href="#">Download ↓</a>
-  </nav>
-</header>
+<aside class="side">
+  <a class="logo" href="#top" aria-label="Flipbook Studio — top">
+    <svg viewBox="0 0 120 84" aria-hidden="true"><path d="M60 16 C46 6 22 6 6 12 V78 C22 72 46 72 60 82 C74 72 98 72 114 78 V12 C98 6 74 6 60 16 Z M60 16 V82"/></svg>
+    <span>Flipbook<br><em>Studio</em></span>
+  </a>
+  <p class="colophon">Free · offline · no sign-up — open source, MIT licence — <a href="https://github.com/NandiniTandon21/flipbook-studio">source on GitHub</a></p>
+</aside>
 
-<main id="top">
-  <!-- ───────── Hero: headline cell | live flipbook cell ───────── -->
-  <section class="hero">
-    <div class="hero-text">
-      <span class="label">Issue Nº 01 — a free flipbook maker</span>
-      <h1 class="display hero-title">Make flipbook magazines. <em>Keep them.</em></h1>
-      <p class="lede">Turn PDFs and images into magazines that turn pages, then download the flipbook itself. No account, no paywall, no watermark, and nothing ever leaves your computer.</p>
-      <div class="hero-actions">
-        <a class="cellbtn cellbtn-fill cellbtn-lg" data-download href="#">Download Flipbook Studio ↓</a>
+<div class="main" id="top">
+  <header class="header">
+    <div class="header-small">
+      <span>A free flipbook maker · no account · nothing uploaded</span>
+      <span><span data-version></span> · <span data-size></span></span>
+    </div>
+    <nav class="mainnav" aria-label="Sections">
+      <a class="navlink" href="#why">Why</a>
+      <a class="navlink" href="#how">How it works</a>
+      <a class="navlink" href="#features">Features</a>
+      <a class="navlink" href="#faq">FAQ</a>
+      <a class="btn btn-fill nav-download" data-download href="#">Download ↓</a>
+    </nav>
+  </header>
+
+  <!-- Entry: live demo | intro -->
+  <section class="row entry hero">
+    <div class="entry-media">
+      <div class="demo-stage" id="demo" aria-label="A real flipbook you can turn"></div>
+    </div>
+    <div class="entry-text">
+      <span class="small">Now — Issue Nº 01</span>
+      <h1 class="headline">Make flipbook magazines. <em>Keep them.</em></h1>
+      <p>Turn PDFs and images into magazines that turn pages, then download the flipbook itself. No account, no paywall, no watermark, and nothing ever leaves your computer.</p>
+      <p class="small">← That’s a real flipbook. Click, swipe or use the arrow keys.</p>
+      <div class="actions">
+        <a class="btn btn-fill btn-lg" data-download href="#">Download Flipbook Studio ↓</a>
         <span class="small">One file · <span data-size></span> · Mac, Windows, Linux</span>
       </div>
     </div>
-    <div class="hero-demo">
-      <span class="label demo-label">↓ A real flipbook. Click, swipe or use ← →</span>
-      <div class="demo-stage" id="demo"></div>
-    </div>
   </section>
 
-  <!-- ───────── Why ───────── -->
-  <section class="row why" id="why">
-    <div class="cell-l">
-      <span class="label">01 — Why this exists</span>
-      <h2 class="display why-title">Try finding a free flipbook maker that just… lets you have your flipbook.</h2>
+  <!-- Entry: why -->
+  <section class="row entry" id="why">
+    <div class="entry-text">
+      <span class="small">Why this exists</span>
+      <h2 class="headline">Try finding a free flipbook maker that just… lets you have your flipbook.</h2>
     </div>
-    <div class="cell-r why-body">
+    <div class="entry-text prose">
       <p>I wanted to turn a few PDFs into a magazine that flips. Simple enough. Except every “free” flipbook maker I found wanted something first: <em>sign up</em>, <em>start a trial</em>, <em>upgrade to remove the watermark</em>, <em>pay to download</em>. Most wouldn’t let you download the flipbook at all. It lives on their site, behind their login, for as long as they feel like hosting it.</p>
       <p>I couldn’t find a single one that was free, didn’t make me sign up, and let me keep the result. So I made it myself.</p>
       <p>Flipbook Studio is one file you download and open. It runs entirely on your computer and never uploads anything. The flipbook you make is yours: a single file you can keep, send, or open years from now without anyone’s permission.</p>
-      <p class="sign">Made for me, and for anyone else who’s been on the same hunt.</p>
+      <p class="small">Made for me, and for anyone else who’s been on the same hunt.</p>
     </div>
   </section>
 
-  <!-- ───────── How ───────── -->
-  <section class="how" id="how">
-    <div class="rowhead"><span class="label">02 — How it works</span></div>
-    <ol class="cells3">
-      <li><span class="big-no">01</span><div><h3>Download &amp; open</h3><p>Download one file and double-click it. It opens in your browser and works offline. Nothing to install, no account.</p></div></li>
-      <li><span class="big-no">02</span><div><h3>Add &amp; arrange</h3><p>Drop in PDFs and images. Every PDF page becomes a magazine page. Drag them into order: the cover first, then spreads.</p></div></li>
-      <li><span class="big-no">03</span><div><h3>Read, save, download</h3><p>Flip through it, save it to your shelf, and download the flipbook: one file that opens in any browser, anywhere.</p></div></li>
+  <!-- Entry: how -->
+  <section class="row" id="how">
+    <span class="small">How it works</span>
+    <ol class="three">
+      <li><span class="no">1</span><h3>Download &amp; open</h3><p>Download one file and double-click it. It opens in your browser and works offline. Nothing to install, no account.</p></li>
+      <li><span class="no">2</span><h3>Add &amp; arrange</h3><p>Drop in PDFs and images. Every PDF page becomes a magazine page. Drag them into order: the cover first, then spreads.</p></li>
+      <li><span class="no">3</span><h3>Read, save, download</h3><p>Flip through it, save it to your shelf, and download the flipbook: one file that opens in any browser, anywhere.</p></li>
     </ol>
   </section>
 
-  <!-- ───────── Features ───────── -->
-  <section class="features" id="features">
-    <div class="rowhead"><span class="label">03 — What you get</span></div>
-    <dl class="cells3 feature-cells">
-      <div><dt>Real page turns</dt><dd>Two-page spreads with a horizontal 3D page flip. Click, swipe, use the arrow keys, or go full screen.</dd></div>
-      <div><dt>A flipbook you keep</dt><dd>Download it as one <code>.html</code> file that opens offline in any browser. Share it, archive it, or drop it back in to edit.</dd></div>
+  <!-- Entry: features -->
+  <section class="row" id="features">
+    <span class="small">What you get</span>
+    <dl class="three features">
+      <div><dt>Real page turns</dt><dd>Two-page spreads with a horizontal 3D page flip. Click, swipe, arrow keys, or full screen.</dd></div>
+      <div><dt>A flipbook you keep</dt><dd>One <code>.html</code> file that opens offline in any browser. Share it, archive it, or drop it back in to edit.</dd></div>
       <div><dt>Searchable text</dt><dd>Text inside PDFs stays selectable and searchable. Text in images and scans is read offline (English, for now).</dd></div>
       <div><dt>PDFs, photos, HEIC</dt><dd>PDF, JPG, PNG, WebP, and iPhone HEIC photos, in every browser.</dd></div>
       <div><dt>Your shelf</dt><dd>Save flipbooks in your browser to read, edit, or download later. Unsaved work is never lost silently.</dd></div>
-      <div><dt>Private by design</dt><dd>The app is built so it can’t reach the internet. No uploads, no tracking, no cookies. That goes for this page too.</dd></div>
+      <div><dt>Private by design</dt><dd>Built so it can’t reach the internet. No uploads, no tracking, no cookies. That goes for this page too.</dd></div>
     </dl>
   </section>
 
-  <!-- ───────── FAQ ───────── -->
-  <section class="row faq" id="faq">
-    <div class="cell-l">
-      <span class="label">04 — Questions</span>
-      <h2 class="display faq-title">Things people ask.</h2>
+  <!-- Entry: FAQ -->
+  <section class="row entry" id="faq">
+    <div class="entry-text">
+      <span class="small">Questions</span>
+      <h2 class="headline">Things people ask.</h2>
     </div>
-    <div class="cell-r faq-list">
+    <div class="faq-list">
       <details><summary>Is it actually free?</summary><p>Yes. No trial, no premium tier, no watermark. The code is open source under the MIT licence.</p></details>
       <details><summary>Do my files get uploaded anywhere?</summary><p>No. Everything happens inside your browser on your computer. The app carries a browser security policy that blocks every network request, so it couldn’t upload even if it tried.</p></details>
       <details><summary>Do I need the internet?</summary><p>Only to download it once. After that it works fully offline, and so do the flipbooks you make.</p></details>
@@ -105,22 +112,17 @@
     </div>
   </section>
 
-  <!-- ───────── Final CTA ───────── -->
-  <section class="cta">
-    <h2 class="display cta-title">Make one now. <em>Keep it forever.</em></h2>
-    <div class="cta-actions">
-      <a class="cellbtn cellbtn-light cellbtn-lg" data-download href="#">Download Flipbook Studio ↓</a>
+  <!-- Last entry: download -->
+  <section class="row entry last">
+    <div class="entry-text">
+      <h2 class="headline">Make one now. <em>Keep it forever.</em></h2>
+    </div>
+    <div class="actions">
+      <a class="btn btn-fill btn-lg" data-download href="#">Download Flipbook Studio ↓</a>
       <span class="small">Free · <span data-version></span> · <span data-size></span> · no account</span>
     </div>
   </section>
-</main>
-
-<footer class="footer">
-  <span>Flipbook Studio — open source, MIT licence</span>
-  <a href="https://github.com/NandiniTandon21/flipbook-studio">Source on GitHub</a>
-  <a href="https://github.com/NandiniTandon21/flipbook-studio/blob/main/CHANGELOG.md">Changelog</a>
-  <span>No cookies, no tracking</span>
-</footer>
+</div>
 
 <script>
   // Filled in by build.py

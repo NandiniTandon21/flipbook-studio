@@ -5,13 +5,13 @@
    ========================================================================== */
 
 .fb-root {
-  --fb-bg: #401F28;          /* plum */
-  --fb-ink: #E9E2DA;         /* bone */
-  --fb-soft: rgba(233, 226, 218, .6);
-  --fb-rule: rgba(233, 226, 218, .22);
-  --fb-panel: #E9E2DA;       /* search panel: bone with plum ink */
+  --fb-bg: #BDD5E2;          /* pale cornflower */
+  --fb-ink: #401F28;         /* plum */
+  --fb-soft: rgba(64, 31, 40, .62);
+  --fb-rule: rgba(64, 31, 40, .3);
+  --fb-panel: #F1ECE6;       /* search panel: light bone with plum ink */
   --fb-panel-ink: #401F28;
-  --fb-accent: #BDD5E2;      /* pale cornflower */
+  --fb-accent: #BDD5E2;      /* pale cornflower (search highlights) */
   --fb-hit: rgba(189, 213, 226, .65);
   --fb-sans: "IBM Plex Mono", ui-monospace, Menlo, monospace;                       /* labels + controls */
   --fb-serif: "FS Advercase", "EB Garamond", Garamond, "Times New Roman", serif;    /* titles; Advercase if installed */
@@ -39,7 +39,7 @@
 .fb-face {
   position: absolute; inset: 0; overflow: hidden; background: #F4F0EA;
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, .38);
+  box-shadow: 0 22px 44px -18px rgba(64, 31, 40, .55);
 }
 .fb-back { transform: rotateY(180deg); }
 /* Safari/WebKit can ignore backface-visibility (it flattens the sheet once a face
@@ -78,13 +78,13 @@
 .fb-actions { display: flex; justify-content: flex-end; gap: 18px; }
 .fb-tb {
   appearance: none; border: 0; background: none; padding: 8px 0; cursor: pointer; color: var(--fb-ink);
-  font: 500 11px/1 var(--fb-sans); letter-spacing: .14em; text-transform: uppercase;
+  font: 400 16px/1.2 var(--fb-serif); letter-spacing: 0; white-space: nowrap;
   border-bottom: 1px solid transparent;
 }
 .fb-tb:hover { border-bottom-color: currentColor; }
 .fb-tb:focus-visible { outline: 1px solid var(--fb-ink); outline-offset: 4px; }
 .fb-tb:disabled { opacity: .28; cursor: default; border-bottom-color: transparent; }
-.fb-count { min-width: 104px; text-align: center; font: 500 11px/1 var(--fb-sans); letter-spacing: .14em; font-variant-numeric: tabular-nums; color: var(--fb-soft); }
+.fb-count { min-width: 104px; text-align: center; font: 400 12.5px/1 var(--fb-sans); font-variant-numeric: tabular-nums; color: var(--fb-soft); }
 .fb-range { -webkit-appearance: none; appearance: none; width: min(220px, 20vw); height: 18px; background: transparent; cursor: pointer; }
 .fb-range::-webkit-slider-runnable-track { height: 1px; background: var(--fb-rule); }
 .fb-range::-moz-range-track { height: 1px; background: var(--fb-rule); }

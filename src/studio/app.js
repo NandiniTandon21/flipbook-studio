@@ -67,8 +67,8 @@
   $('navNew').onclick = startNew;
   $('navImport').onclick = function () { $('importInput').value = ''; $('importInput').click(); };
 
-  // keep the editor bar docked right under the (variable-height) header
-  function syncHeader() { document.documentElement.style.setProperty('--header-h', document.querySelector('.header').offsetHeight + 'px'); }
+  // keep the editor bar docked right under the sticky main nav (its height varies with wrapping)
+  function syncHeader() { document.documentElement.style.setProperty('--nav-h', document.querySelector('.mainnav').offsetHeight + 'px'); }
   window.addEventListener('resize', syncHeader);
   syncHeader();
 
@@ -400,7 +400,7 @@
   async function refreshCount() {
     try {
       var n = (await store.listBooks()).length;
-      $('libCount').textContent = n ? U.pad2(n) : '';
+      $('libCount').textContent = n ? U.pad2(n) + ' saved' : '';
     } catch (e) { $('libCount').textContent = ''; }
   }
 
@@ -422,7 +422,7 @@
       $('storageNote').textContent = 'This browser doesn’t allow storage for files opened from disk — use Download to keep your flipbooks.';
       return;
     }
-    $('libCount').textContent = books.length ? U.pad2(books.length) : '';
+    $('libCount').textContent = books.length ? U.pad2(books.length) + ' saved' : '';
     $('homeMeta').textContent = (books.length ? U.pad2(books.length) + ' flipbook' + (books.length === 1 ? '' : 's') : 'Nothing saved yet') + ' · saved in this browser · downloads are your permanent copies';
     var frag = document.createDocumentFragment();
     frag.appendChild(newCard());
@@ -462,7 +462,7 @@
   function newCard() {
     var b = document.createElement('button');
     b.type = 'button'; b.className = 'cell cell-new'; b.id = 'newCard';
-    b.innerHTML = '<span class="plus">+</span><span><span class="cell-caption"><span class="cell-title">New flipbook</span><span class="cell-sub">→</span></span><span class="small">from PDFs &amp; images</span></span>';
+    b.innerHTML = '<span class="plus">+</span><span class="cell-title">New flipbook</span><span class="small">from PDFs &amp; images</span>';
     b.onclick = startNew;
     return b;
   }

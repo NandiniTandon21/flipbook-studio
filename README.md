@@ -37,7 +37,7 @@ There's nothing to install and you don't need to be online. The same file works 
 
 ## Design
 
-**Palette:** bone `#E9E2DA` (background), plum `#401F28` (the single ink: text, rules, active cells, reader background), pale cornflower `#BDD5E2` and powder blue `#B5C5D4` (cell fills, highlights), and chocolate `#3E2923` (deep panels). **Layout:** a ruled grid of 1px plum lines with alternating cornflower cells and equal-cell navigation bars. The app, the reader, exported flipbooks, and the website all share it.
+**Palette:** pale cornflower `#BDD5E2` (background), plum `#401F28` (the single ink, plus the one filled main button), bone `#E9E2DA` (page sheets, panels), and chocolate `#3E2923` (hover and error states). **Layout** (modelled on utrecht.jp): a slim left column with the logo and a vertical colophon, plain text-link navigation, and content separated by hairline rules. No boxes, lots of space. The app, the reader, exported flipbooks, and the website all share it.
 
 ## Typography
 

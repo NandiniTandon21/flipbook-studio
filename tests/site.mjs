@@ -50,9 +50,9 @@ async function run(name) {
 
     // nav anchor
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.click('.navcells a[href="#faq"]');
+    await page.click('.mainnav a[href="#faq"]');
     await page.waitForTimeout(1200);
-    const pos = await page.evaluate(() => ({ top: document.getElementById('faq').getBoundingClientRect().top, header: document.querySelector('.header').offsetHeight }));
+    const pos = await page.evaluate(() => ({ top: document.getElementById('faq').getBoundingClientRect().top, header: document.querySelector('.mainnav').offsetHeight }));
     // the section should land just below the sticky header
     check('nav link scrolls to section', pos.top >= pos.header - 4 && pos.top < pos.header + 40, `faq top=${Math.round(pos.top)}, header=${pos.header}`);
 
