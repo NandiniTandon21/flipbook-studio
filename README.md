@@ -48,6 +48,7 @@ src/
 vendor/              pinned third-party engines + fonts (see vendor/README.md)
 tests/               end-to-end tests + fixtures
 docs/                ARCHITECTURE.md, TESTING.md
+tools/privacy-scan.sh  pre-publish scan for paths/secrets (npm run scan)
 build.py             inlines everything → dist/Flipbook-Studio.html
 dist/                the built single-file app (what users download)
 ```

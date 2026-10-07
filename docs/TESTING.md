@@ -39,6 +39,14 @@ node tests/make-fixtures.mjs         # poster.png (+ poster.heic via macOS `sips
 
 If you change the colours in `make-sample-pdf.py`, update `PAGE_RGB` in `e2e.mjs`.
 
+## Privacy scan before publishing
+
+```bash
+npm run scan        # = bash tools/privacy-scan.sh
+```
+
+This checks the working tree **and the full git history** for local machine paths, tokens and API keys, private keys, and personal email addresses. It also lists the commit identities, which should be the GitHub `noreply` address. It exits with code 1 if anything needs a look.
+
 ## Manual check before a release
 
 Open `dist/Flipbook-Studio.html` in Safari and in Chrome. Drop in a real PDF and a phone photo, read it, search it, download it, and open the downloaded file.
