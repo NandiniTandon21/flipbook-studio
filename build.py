@@ -21,20 +21,19 @@ SITE_OUT = ROOT / "docs" / "index.html"
 # Studio modules, in load order (each attaches to window.Studio).
 STUDIO_JS = ["util.js", "storage.js", "ocr.js", "importers.js", "exporter.js", "app.js"]
 
-# Embedded fonts (SIL Open Font License, see vendor/README.md).
+# Embedded font: Archivo, a free grotesk close to GT America (SIL Open Font License, see vendor/README.md).
 FONTS = [
-    ("EB Garamond", "normal", "400 600", "EBGaramond-normal-400-600.woff2"),
-    ("EB Garamond", "italic", "400 600", "EBGaramond-italic-400-600.woff2"),
-    ("IBM Plex Mono", "normal", "400", "IBMPlexMono-normal-400.woff2"),
-    ("IBM Plex Mono", "normal", "500", "IBMPlexMono-normal-500.woff2"),
+    ("Archivo", "normal", "400 800", "Archivo-normal-400-800.woff2"),
+    ("Archivo", "italic", "400 800", "Archivo-italic-400-800.woff2"),
 ]
 
-# Advercase (Indieground) is a commercial font, so it is NOT bundled. If it is
-# installed on the computer, the browser uses it via local(); otherwise the
-# display face falls back to the embedded EB Garamond.
-ADVERCASE = [
-    ("normal", ["Advercase", "Advercase Regular", "Advercase-Regular", "Advercase Font Regular", "AdvercaseFont-Regular"]),
-    ("italic", ["Advercase Italic", "Advercase-Italic", "Advercase Font Italic", "AdvercaseFont-Italic"]),
+# GT America (Grilli Type, used by utrecht.jp) is a commercial font, so it is NOT
+# bundled. If it is installed on the computer, the browser uses it via local();
+# otherwise everything falls back to the embedded Archivo. Format: (style, weight, names).
+GT_AMERICA = [
+    ("normal", 400, ["GT America Standard Regular", "GTAmerica-StandardRegular", "GT America Regular", "GTAmerica-Regular"]),
+    ("normal", 700, ["GT America Standard Bold", "GTAmerica-StandardBold", "GT America Bold", "GTAmerica-Bold"]),
+    ("italic", 400, ["GT America Standard Regular Italic", "GTAmerica-StandardRegularItalic", "GT America Italic"]),
 ]
 
 
@@ -55,9 +54,9 @@ def fonts_css() -> str:
             f"@font-face{{font-family:'{family}';font-style:{style};font-weight:{weight};"
             f"font-display:swap;src:url(data:font/woff2;base64,{data}) format('woff2')}}"
         )
-    for style, names in ADVERCASE:
+    for style, weight, names in GT_AMERICA:
         src = ",".join(f"local('{n}')" for n in names)
-        rules.append(f"@font-face{{font-family:'FS Advercase';font-style:{style};font-weight:400 700;src:{src}}}")
+        rules.append(f"@font-face{{font-family:'FS GT America';font-style:{style};font-weight:{weight};src:{src}}}")
     return "\n".join(rules)
 
 

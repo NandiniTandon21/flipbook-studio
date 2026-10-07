@@ -29,7 +29,7 @@ Home (#view-home) ──+ New / Continue / Edit──► Editor (#view-edit) ─
 
 ## Fonts
 
-`build.py` embeds EB Garamond and IBM Plex Mono as base64 `@font-face`, and adds an `FS Advercase` face that only uses `local()` sources. The display stack is `"FS Advercase", "EB Garamond", …`. If Advercase isn't installed (or lacks a glyph), the browser falls back to EB Garamond character by character. `local()` isn't a network request, so the no-network policy is unaffected.
+`build.py` embeds **Archivo** (roman + italic, variable weight 400–800) as base64 `@font-face`, and adds an `FS GT America` face that only uses `local()` sources. The font stack is `"FS GT America", "Archivo", …`. If GT America isn't installed, the browser uses Archivo. `local()` isn't a network request, so the no-network policy is unaffected.
 
 ## Data flow
 

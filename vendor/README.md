@@ -9,9 +9,8 @@ Everything the app needs at runtime is in this folder, pinned to exact versions,
 | `tesseract-core-simd-lstm.wasm.js` | [tesseract.js-core](https://github.com/naptha/tesseract.js-core) | 5.1.1 | Apache-2.0 | single-file build with the wasm inlined |
 | `eng.traineddata.gz` | [tessdata](https://github.com/tesseract-ocr/tessdata) via `@tesseract.js-data/eng` | 4.0.0_best_int | Apache-2.0 | English LSTM model |
 | `heic2any.min.js` | [heic2any](https://github.com/alexcorvi/heic2any) | 0.0.4 | MIT (bundles [libheif](https://github.com/strukturag/libheif), LGPL-3.0) | `heic2any/dist/` |
-| `fonts/EBGaramond-*.woff2` | [EB Garamond](https://github.com/octaviopardo/EBGaramond12) | Google Fonts, latin subset, wght 400–600 | SIL OFL 1.1 | fonts.google.com |
-| `fonts/IBMPlexMono-*.woff2` | [IBM Plex Mono](https://github.com/IBM/plex) | Google Fonts, latin subset, 400 + 500 | SIL OFL 1.1 | fonts.google.com |
+| `fonts/Archivo-*.woff2` | [Archivo](https://github.com/Omnibus-Type/Archivo) | Google Fonts, latin subset, wght 400–800, roman + italic | SIL OFL 1.1 | fonts.google.com |
 
-**Advercase is not bundled.** It's a commercial font from [Indieground](https://indieground.net/product/advercase-font/), so redistributing it isn't allowed. `build.py` adds an `@font-face` that only points at a *locally installed* copy (`local('Advercase')`). If it's installed, the titles use it. If not, they fall back to EB Garamond.
+**GT America is not bundled.** It's a commercial font from [Grilli Type](https://www.grillitype.com/typeface/gt-america) (the font utrecht.jp uses). `build.py` adds `@font-face` rules that only point at a *locally installed* copy (`local('GT America Standard …')`). If it's installed, the app uses it; if not, everything uses Archivo.
 
 The OCR core needs WebAssembly SIMD, which Chrome 91+, Firefox 89+ and Safari 16.4+ all support. Where it isn't available, the OCR switch is disabled. PDF text still works without it.

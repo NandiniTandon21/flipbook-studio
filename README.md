@@ -37,11 +37,11 @@ There's nothing to install and you don't need to be online. The same file works 
 
 ## Design
 
-**Palette:** pale cornflower `#BDD5E2` (background), plum `#401F28` (the single ink, plus the one filled main button), bone `#E9E2DA` (page sheets, panels), and chocolate `#3E2923` (hover and error states). **Layout** (modelled on utrecht.jp): a slim left column with the logo and newspaper-style margin notes, plain text-link navigation, and content separated by hairline rules. No boxes, lots of space. The app, the reader, exported flipbooks, and the website all share it.
+**Palette:** white (background), plum red `#7A1E3C` (the single ink, plus the filled main buttons), deep plum `#401F28` (hover), pale cornflower `#BDD5E2` (reader and demo background, drop zone, highlights), and bone `#F5F1EC` (page sheets). **Layout** (modelled on utrecht.jp): a slim left column with the logo and newspaper-style margin notes, plain text-link navigation, and content separated by hairline rules. No boxes, lots of space. The app, the reader, exported flipbooks, and the website all share it.
 
 ## Typography
 
-Titles use **Advercase** if it's installed on your computer ([Indieground](https://indieground.net/product/advercase-font/); install the free personal version or a licence you own). Otherwise they use the bundled **EB Garamond**. Labels and controls use **IBM Plex Mono**. Advercase is never bundled into the app or your exported flipbooks, because it's a commercial font.
+One grotesk throughout, like utrecht.jp: **GT America** ([Grilli Type](https://www.grillitype.com/typeface/gt-america)) if it's installed on your computer, otherwise the bundled **Archivo** (SIL OFL), the closest free match. GT America is never bundled into the app or your exported flipbooks, because it's a commercial font.
 
 ## Browser support
 

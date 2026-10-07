@@ -2,6 +2,21 @@
 
 Every feature or fix gets an entry here, in the same commit. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 2.5.0
+
+**Typeface, like utrecht.jp.** Everything now uses one grotesk: **GT America** if it's installed (it's commercial, so it's never bundled; the app loads a locally installed copy), otherwise the bundled **Archivo** (open licence), the closest free match. EB Garamond, IBM Plex Mono, and the Advercase hook were removed. The app file is slightly smaller.
+
+**Confident, brighter colours**
+- **White** page background with lots of empty space.
+- **Plum red** `#7A1E3C` as the single ink: text, rules, buttons, and the "New flipbook" tile. It's a brighter take on the palette's plum, which read as brown on white. Deep plum `#401F28` is only used for hover.
+- **No brown anywhere** (chocolate removed). **Pale cornflower** `#BDD5E2` is the accent: the reader and demo background, the drop zone, highlights.
+
+**The website stands out more**
+- A huge bold headline ("Make flipbook magazines. *Keep them.*"), the live flipbook in a full cornflower panel, large plum-red numbers for "How it works", and one big plum-red closing panel with white type. Still no footer and no clutter.
+- The demo magazine pages are redrawn in Archivo with plum red, white, and bone (no cornflower pages on the cornflower panel).
+
+**App:** same layout, now white with plum-red bold type. The big bold "My flipbooks" heading, a solid plum-red "New flipbook" tile, a cornflower drop zone, and a white search panel in the reader.
+
 ## 2.4.2
 
 **Fixes**
