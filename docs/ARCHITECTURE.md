@@ -13,6 +13,20 @@ Flipbook Studio is a static web app that ships as **one HTML file**. It has no s
 
 The **viewer** (`src/viewer/`) is the one piece both of them share. The Studio runs it for the "Read" overlay. When it exports, it copies the viewer's source text (`#viewer-src`, `#viewer-css`, `#fonts-css`) straight into the new file, so the reading experience is the same code in both places.
 
+## Screens
+
+```
+Home (#view-home) ──+ New / Continue / Edit──► Editor (#view-edit) ──Preview──► Reader overlay (#viewer)
+     ▲                                              │
+     └──────────── ← My flipbooks ─────────────────┘
+```
+
+`app.js` always starts on Home. The editor's state is `{pages, title, editingId, dirty}`. `dirty` drives the save status, the "Not saved yet" card on Home, and the confirm-before-discard prompts. The draft (including `dirty`) is autosaved to IndexedDB. Saving writes it immediately.
+
+## Fonts
+
+`build.py` embeds EB Garamond and IBM Plex Mono as base64 `@font-face`, and adds an `FS Advercase` face that only uses `local()` sources. The display stack is `"FS Advercase", "EB Garamond", …`. If Advercase isn't installed (or lacks a glyph), the browser falls back to EB Garamond character by character. `local()` isn't a network request, so the no-network policy is unaffected.
+
 ## Data flow
 
 ```

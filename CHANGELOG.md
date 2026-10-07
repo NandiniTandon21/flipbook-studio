@@ -2,6 +2,27 @@
 
 Every feature or fix gets an entry here, in the same commit. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 2.1.0
+
+**Easier navigation**
+- The app now opens on **My flipbooks** (Home) instead of jumping straight into your last draft.
+- Home has a clear **+ New flipbook** card. Unsaved work shows as a **"Not saved yet — Continue editing / Discard"** card, and every saved flipbook has Read / Edit / Download / Delete.
+- The editor has one bar: **← My flipbooks · Title · Preview · Save · Download**. A live save status (*Not saved yet / Unsaved changes / Saved ✓*) sits in the same bar.
+- Numbered steps (1 Add → 2 Arrange → 3 Preview, save or download) show where you are.
+- Quality and OCR moved into a small **Settings** dropdown, and the OCR toggle says "English only for now".
+- Starting a new flipbook or opening another one asks first if there are unsaved changes, so nothing is lost silently.
+
+**Magazine typography**
+- Display type is **Advercase** when it's installed on the computer. The app loads it locally and never bundles it, because it's a commercial font. Otherwise it uses the embedded **EB Garamond**, which has the same retro Apple-Garamond feel.
+- Labels and controls use **IBM Plex Mono**.
+- Instrument Serif and Instrument Sans were removed.
+
+**Fixes**
+- Saving now writes the autosave immediately, so reloading right after saving no longer shows the work as unsaved.
+
+**Tests**
+- Added checks for landing on Home, the + New flow, the unsaved-work card, the save status, and opening a saved flipbook with Edit.
+
 ## 2.0.1
 
 **Docs & UI**

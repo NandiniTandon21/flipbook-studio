@@ -55,6 +55,11 @@ async function run(name) {
   try {
     await page.goto(APP);
     await page.waitForFunction(() => window.Studio && window.Studio.app);
+    await page.waitForTimeout(300);
+    check('opens on Home', await page.isVisible('#view-home') && !(await page.isVisible('#view-edit')));
+    await page.screenshot({ path: path.join(ART, `${name}-0-home.png`) });
+    await page.click('#navNew');
+    check('+ New flipbook opens the editor', await page.isVisible('#drop'));
     await page.screenshot({ path: path.join(ART, `${name}-1-empty.png`) });
 
     // ---- privacy: the page must not be able to reach the network
@@ -71,7 +76,13 @@ async function run(name) {
     check('PDF text layer kept', /Test Magazine page 1/.test(pages[0]?.text || ''), (pages[0]?.text || '').slice(0, 40));
     check('PNG text recognised (OCR)', /slow/i.test(pages[7]?.text || '') && /promise/i.test(pages[7]?.text || ''), (pages[7]?.text || '').slice(0, 60));
     check('HEIC decoded + OCR', pages[8]?.name === 'poster.heic' && /promise/i.test(pages[8]?.text || ''), (pages[8]?.text || '').slice(0, 60));
+    check('save state shows "Not saved yet"', (await page.textContent('#saveState')) === 'Not saved yet', await page.textContent('#saveState'));
     await page.screenshot({ path: path.join(ART, `${name}-2-board.png`), fullPage: true });
+    // unsaved work shows a "Continue editing" card on Home
+    await page.click('#navHome');
+    check('Home shows unsaved-work card', await page.isVisible('#resume'));
+    await page.screenshot({ path: path.join(ART, `${name}-2b-resume.png`) });
+    await page.click('#resumeGo');
 
     // ---- reorder with the tile arrow, then put it back
     await page.hover('.tile[data-index="0"]');
@@ -109,15 +120,17 @@ async function run(name) {
     await page.click('#bSave');
     await page.waitForFunction(() => /Saved|Couldn|blocks/.test(document.getElementById('statusText').textContent), null, { timeout: 30000 });
     const saveMsg = await page.textContent('#statusText');
+    check('save state shows "Saved ✓"', (await page.textContent('#saveState')) === 'Saved ✓', await page.textContent('#saveState'));
     await page.reload();
     await page.waitForFunction(() => window.Studio && window.Studio.app);
     await page.waitForTimeout(800);
     const after = await page.evaluate(() => ({ draft: Studio.app.state.pages.length, lib: document.getElementById('libCount').textContent }));
     check('saved to library + survives reload', /Saved/.test(saveMsg) && after.lib === '01' && after.draft === 9, `${saveMsg} | ${JSON.stringify(after)}`);
-    await page.click('.mast-tab[data-view="library"]');
-    await page.waitForTimeout(300);
+    check('no unsaved-work card after saving', !(await page.isVisible('#resume')));
     await page.screenshot({ path: path.join(ART, `${name}-5-library.png`) });
-    await page.click('.mast-tab[data-view="make"]');
+    await page.click('.book [data-a="edit"]');
+    await page.waitForFunction(() => !document.getElementById('view-edit').hidden, null, { timeout: 15000 }).catch(() => {});
+    check('Edit opens the saved flipbook', await page.isVisible('#view-edit') && (await page.inputValue('#title')) === 'sample');
 
     // ---- download the flipbook file
     await page.evaluate(() => { window.showSaveFilePicker = undefined; });
@@ -143,7 +156,7 @@ async function run(name) {
     await fb.close();
 
     // ---- import the downloaded file back into the library
-    await page.click('.mast-tab[data-view="library"]');
+    await page.click('#navHome');
     await page.setInputFiles('#importInput', exported);
     await page.waitForFunction(() => document.getElementById('libCount').textContent === '02', null, { timeout: 60000 });
     check('re-import flipbook file', true);

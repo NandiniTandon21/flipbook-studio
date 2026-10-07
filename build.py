@@ -21,9 +21,18 @@ STUDIO_JS = ["util.js", "storage.js", "ocr.js", "importers.js", "exporter.js", "
 
 # Embedded fonts (SIL Open Font License, see vendor/README.md).
 FONTS = [
-    ("Instrument Serif", "normal", "400", "InstrumentSerif-normal.woff2"),
-    ("Instrument Serif", "italic", "400", "InstrumentSerif-italic.woff2"),
-    ("Instrument Sans", "normal", "400 600", "InstrumentSans-normal.woff2"),
+    ("EB Garamond", "normal", "400 600", "EBGaramond-normal-400-600.woff2"),
+    ("EB Garamond", "italic", "400 600", "EBGaramond-italic-400-600.woff2"),
+    ("IBM Plex Mono", "normal", "400", "IBMPlexMono-normal-400.woff2"),
+    ("IBM Plex Mono", "normal", "500", "IBMPlexMono-normal-500.woff2"),
+]
+
+# Advercase (Indieground) is a commercial font, so it is NOT bundled. If it is
+# installed on the computer, the browser uses it via local(); otherwise the
+# display face falls back to the embedded EB Garamond.
+ADVERCASE = [
+    ("normal", ["Advercase", "Advercase Regular", "Advercase-Regular", "Advercase Font Regular", "AdvercaseFont-Regular"]),
+    ("italic", ["Advercase Italic", "Advercase-Italic", "Advercase Font Italic", "AdvercaseFont-Italic"]),
 ]
 
 
@@ -44,6 +53,9 @@ def fonts_css() -> str:
             f"@font-face{{font-family:'{family}';font-style:{style};font-weight:{weight};"
             f"font-display:swap;src:url(data:font/woff2;base64,{data}) format('woff2')}}"
         )
+    for style, names in ADVERCASE:
+        src = ",".join(f"local('{n}')" for n in names)
+        rules.append(f"@font-face{{font-family:'FS Advercase';font-style:{style};font-weight:400 700;src:{src}}}")
     return "\n".join(rules)
 
 

@@ -18,6 +18,7 @@ There's nothing to install and you don't need to be online. The same file works 
 |---|---|
 | **Upload** | PDF, JPG, PNG, WebP, GIF, AVIF, and **HEIC/HEIF** (iPhone photos, decoded in every browser) |
 | **Searchable text** | PDF text is kept along with where it sits on the page. Text in images and scanned pages is read by built-in **OCR**. |
+| **Navigate** | Opens on **My flipbooks**. Use **+ New flipbook** to start, **Continue editing** to pick up unsaved work, and **Edit** to change a saved one. In the editor, one bar has **Preview · Save · Download** and shows a live save status. |
 | **Arrange** | Pages are laid out the way the magazine opens: the cover, then spreads. Drag to reorder, or use the ← → buttons. You can also add blank pages, reverse the order, or sort A–Z. |
 | **Read** | Two-page spreads with a 3D page turn. Click, swipe, use the arrow keys or the slider, or go full screen. **Search** (⌘/Ctrl-F) jumps to each match and highlights it. You can select and copy text. |
 | **Library** | Saves your flipbooks in this browser so you can read, edit, download, or delete them. Your work in progress autosaves. |
@@ -31,6 +32,10 @@ There's nothing to install and you don't need to be online. The same file works 
 
 - **More OCR languages.** Tesseract supports 100+ languages, but each language model adds about 2–15 MB. The plan is optional *language packs*: download a language file once, drop it into Studio, and it's kept offline in the Library storage. That way the app itself stays small.
 - **CJK PDF text.** Bundle pdf.js character maps (cMaps) so text extraction works for every Chinese, Japanese, and Korean PDF.
+
+## Typography
+
+Titles use **Advercase** if it's installed on your computer ([Indieground](https://indieground.net/product/advercase-font/); install the free personal version or a licence you own). Otherwise they use the bundled **EB Garamond**. Labels and controls use **IBM Plex Mono**. Advercase is never bundled into the app or your exported flipbooks, because it's a commercial font.
 
 ## Browser support
 

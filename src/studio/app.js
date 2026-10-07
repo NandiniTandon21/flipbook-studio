@@ -1,6 +1,13 @@
 /* ==========================================================================
-   app.js — Studio UI: the Make board, the Library, the reader overlay.
-   State lives in `state`; `render()` redraws the board from it.
+   app.js — Studio UI.
+
+   Screens
+     home    "My flipbooks": resume card for unsaved work, + New, saved books
+     edit    the editor: title, Preview / Save / Download, steps, page spreads
+     reader  FlipBook overlay (src/viewer)
+
+   State lives in `state`; renderEditor() / renderHome() redraw from it.
+   `state.dirty` is true when the board has changes that aren't in the library.
    ========================================================================== */
 (function (S) {
   'use strict';
@@ -10,7 +17,8 @@
   var state = {
     pages: [],          // page records in reading order
     title: '',
-    editingId: null     // library id when editing a saved flipbook
+    editingId: null,    // library id when editing a saved flipbook
+    dirty: false        // changes not yet saved to the library
   };
 
   // ======================================================== status line
@@ -30,10 +38,45 @@
   }
   function settings() { return { quality: +$('quality').value || 2400, ocr: $('ocr').checked }; }
 
+  // ======================================================== screens
+  var current = 'home';
+  function show(view) {
+    current = view;
+    $('view-home').hidden = view !== 'home';
+    $('view-edit').hidden = view !== 'edit';
+    $('navHome').classList.toggle('is-active', view === 'home');
+    if (view === 'home') renderHome();
+    else renderEditor();
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('[data-go="home"]').forEach(function (b) { b.onclick = function () { show('home'); }; });
+
+  /** Ask before throwing away unsaved work. Returns true if it's OK to continue. */
+  function okToDiscard(what) {
+    if (!state.dirty || !state.pages.length) return true;
+    return confirm('“' + (state.title || 'Untitled flipbook') + '” has unsaved changes.\n\n' + what + ' anyway? (Choose Cancel, then Save, to keep them.)');
+  }
+  function startNew() {
+    if (!okToDiscard('Start a new flipbook')) return;
+    state.pages = []; state.title = ''; state.editingId = null; state.dirty = false;
+    $('title').value = '';
+    saveDraft();
+    show('edit');
+  }
+  $('navNew').onclick = startNew;
+
+  /** Any change to pages/title goes through here. */
+  function changed() {
+    state.dirty = true;
+    renderEditor();
+    saveDraft();
+  }
+
   // ======================================================== importing
   async function addFiles(fileList) {
     var files = Array.prototype.slice.call(fileList || []);
     if (!files.length) return;
+    if (current !== 'edit') show('edit');
     var added = 0, skipped = [], opts = settings();
     try {
       for (var i = 0; i < files.length; i++) {
@@ -48,7 +91,8 @@
           if (S.importers.kindOf(file) === 'html' && !state.pages.length && !state.title) setTitle(pages[0] && pages[0].name.split(' · ')[0]);
           Array.prototype.push.apply(state.pages, pages);
           added += pages.length;
-          render();
+          state.dirty = true;
+          renderEditor();
         } catch (e) {
           console.warn(file.name, e);
           skipped.push(file.name);
@@ -58,9 +102,9 @@
       S.ocr.release();
     }
     if (!state.title && added && state.pages.length === added) setTitle(files[0].name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' '));
-    render(); saveDraft();
+    changed();
     if (skipped.length) notify('Couldn’t read ' + skipped.length + ' file' + (skipped.length > 1 ? 's' : '') + ': ' + skipped.slice(0, 3).join(', '), true, 6000);
-    else if (added) notify('Added ' + added + ' page' + (added === 1 ? '' : 's'));
+    else if (added) notify('Added ' + added + ' page' + (added === 1 ? '' : 's') + ' — drag to arrange, then Preview, Save or Download');
     else $('status').hidden = true;
   }
 
@@ -69,7 +113,7 @@
     $('title').value = state.title;
   }
 
-  // ======================================================== board
+  // ======================================================== editor
   /** Group page indexes the way the magazine opens: cover alone, then pairs. */
   function spreadsOf(n) {
     var out = [];
@@ -98,42 +142,52 @@
     t.querySelector('img').src = p.thumb;
     return t;
   }
+  function addSlot() {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'add-slot'; b.textContent = '+ Add pages';
+    b.onclick = pickFiles;
+    return b;
+  }
 
-  function render() {
+  function renderEditor() {
     var n = state.pages.length;
-    var searchable = state.pages.filter(function (p) { return p.text && p.text.length; }).length;
-    $('metaPages').textContent = n ? U.pad2(n) + ' page' + (n === 1 ? '' : 's') + ' — ' + U.pad2(spreadsOf(n).length) + ' spread' + (spreadsOf(n).length === 1 ? '' : 's') : 'No pages yet';
-    $('metaText').textContent = n ? (searchable ? 'Searchable text on ' + searchable + ' of ' + n : 'No searchable text') : '';
-    $('metaEditing').hidden = !state.editingId;
-    $('metaEditing').textContent = 'Editing a saved flipbook — saving updates it';
-    $('drop').hidden = !!n;
-    $('spreads').hidden = !n;
+    // bar
+    ['bRead', 'bSave', 'bDownload'].forEach(function (id) { $(id).disabled = !n; });
+    var st = $('saveState');
+    st.classList.toggle('is-dirty', state.dirty && n > 0);
+    st.textContent = !n ? '' : state.dirty ? (state.editingId ? 'Unsaved changes' : 'Not saved yet') : 'Saved ✓';
+    // steps
+    var steps = $('steps').children;
+    steps[0].className = n ? 'is-done' : 'is-active';
+    steps[1].className = n ? 'is-active' : '';
+    steps[2].className = n ? 'is-active' : '';
+    // toolbar
     $('tReverse').disabled = $('tSort').disabled = n < 2;
-    $('tClear').disabled = !n;
-    document.querySelector('.make-actions').hidden = !n;   // nothing to read/save yet
+    $('tClear').disabled = $('tBlank').disabled = !n;
+    // board
+    $('drop').hidden = !!n;
+    $('pagesArea').hidden = !n;
+    if (!n) { $('spreads').replaceChildren(); return; }
 
-    var aspect = n ? state.pages[0].w / state.pages[0].h : 0.7071;
-    $('spreads').style.setProperty('--page-aspect', String(aspect));
+    $('spreads').style.setProperty('--page-aspect', String(state.pages[0].w / state.pages[0].h));
     var frag = document.createDocumentFragment();
-    var spreads = spreadsOf(n);
-    var addPlaced = false;
+    var spreads = spreadsOf(n), addPlaced = false;
     spreads.forEach(function (sp, k) {
       var box = document.createElement('div');
       box.className = 'spread';
       [sp[0], sp[1]].forEach(function (i, side) {
         if (i != null) box.appendChild(tile(i, side ? 'right' : 'left'));
-        else if (k === spreads.length - 1 && side === 1 && !addPlaced) { box.appendChild(addSlot()); addPlaced = true; }
+        else if (k === spreads.length - 1 && side === 1) { box.appendChild(addSlot()); addPlaced = true; }
         else box.appendChild(Object.assign(document.createElement('div'), { className: 'slot' }));
       });
       var label = document.createElement('div');
-      label.className = 'spread-label label';
-      var left = k === 0 ? 'Cover' : 'Spread ' + U.pad2(k);
+      label.className = 'spread-label';
       var pp = sp.filter(function (x) { return x != null; }).map(function (x) { return U.pad2(x + 1); }).join('—');
-      label.innerHTML = '<span>' + left + '</span><span class="soft num">p. ' + pp + '</span>';
+      label.innerHTML = '<span>' + (k === 0 ? 'Front cover' : 'Spread ' + U.pad2(k)) + '</span><span class="soft num">p. ' + pp + '</span>';
       box.appendChild(label);
       frag.appendChild(box);
     });
-    if (n && !addPlaced) {
+    if (!addPlaced) {
       var box = document.createElement('div');
       box.className = 'spread';
       box.appendChild(addSlot());
@@ -141,18 +195,12 @@
     }
     $('spreads').replaceChildren(frag);
   }
-  function addSlot() {
-    var b = document.createElement('button');
-    b.type = 'button'; b.className = 'add-slot'; b.textContent = 'Add pages +';
-    b.onclick = pickFiles;
-    return b;
-  }
 
   function move(from, to) {
     if (to < 0 || to >= state.pages.length || from === to) return;
     var p = state.pages.splice(from, 1)[0];
     state.pages.splice(to, 0, p);
-    render(); saveDraft();
+    changed();
   }
 
   // tile buttons
@@ -162,9 +210,9 @@
     var i = +b.closest('.tile').dataset.index;
     if (b.dataset.act === 'left') move(i, i - 1);
     else if (b.dataset.act === 'right') move(i, i + 1);
-    else if (b.dataset.act === 'del') { state.pages.splice(i, 1); render(); saveDraft(); }
+    else if (b.dataset.act === 'del') { state.pages.splice(i, 1); changed(); }
   });
-  // double-click a page to read from there
+  // double-click a page to preview from there
   $('spreads').addEventListener('dblclick', function (e) {
     var t = e.target.closest('.tile');
     if (t && !e.target.closest('button')) openReader(currentData(), +t.dataset.index);
@@ -215,68 +263,77 @@
     move(from, to);
   });
 
-  // drop files anywhere on the board
-  var board = $('board'), depth = 0;
+  // drop files: on the editor board, or anywhere on Home (opens the editor)
   function isFileDrag(e) { return e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') >= 0; }
+  var board = $('board'), depth = 0;
   board.addEventListener('dragenter', function (e) { if (isFileDrag(e)) { depth++; board.classList.add('is-dragging-files'); } });
   board.addEventListener('dragleave', function (e) { if (isFileDrag(e) && --depth <= 0) { depth = 0; board.classList.remove('is-dragging-files'); } });
-  board.addEventListener('dragover', function (e) { if (isFileDrag(e)) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } });
-  board.addEventListener('drop', function (e) {
+  window.addEventListener('dragover', function (e) { if (isFileDrag(e)) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } });
+  window.addEventListener('drop', function (e) {
     if (!isFileDrag(e)) return;
     e.preventDefault(); depth = 0; board.classList.remove('is-dragging-files');
-    addFiles(e.dataTransfer.files);
+    var files = Array.prototype.slice.call(e.dataTransfer.files);
+    if (current === 'home' && files.every(function (f) { return S.importers.kindOf(f) === 'html'; })) importToLibrary(files);
+    else if (current === 'home') { if (okToDiscard('Start a new flipbook')) { state.pages = []; state.title = ''; state.editingId = null; $('title').value = ''; addFiles(files); } }
+    else addFiles(files);
   });
-  // never let a stray drop navigate away from the app
-  window.addEventListener('dragover', function (e) { if (isFileDrag(e)) e.preventDefault(); });
-  window.addEventListener('drop', function (e) { if (isFileDrag(e)) e.preventDefault(); });
 
   // ======================================================== toolbar
   function pickFiles() { $('fileInput').value = ''; $('fileInput').click(); }
   $('fileInput').onchange = function () { addFiles(this.files); };
   $('dropPick').onclick = pickFiles;
   $('tAdd').onclick = pickFiles;
-  $('title').addEventListener('input', function () { state.title = this.value.trim(); saveDraft(); });
-  $('tReverse').onclick = function () { state.pages.reverse(); render(); saveDraft(); };
+  $('title').addEventListener('input', function () { state.title = this.value.trim(); state.dirty = state.pages.length > 0; renderEditor(); saveDraft(); });
+  $('tReverse').onclick = function () { state.pages.reverse(); changed(); };
   $('tSort').onclick = function () {
     state.pages.sort(function (a, b) { return U.naturalCompare(a.name || '', b.name || ''); });
-    render(); saveDraft(); notify('Sorted by file name');
+    changed(); notify('Sorted by file name');
   };
   $('tClear').onclick = function () {
-    if (!confirm('Remove all pages and start a new flipbook?')) return;
-    state.pages = []; state.editingId = null; setTitle('');
-    render(); saveDraft();
+    if (!confirm('Remove all pages from this flipbook?')) return;
+    state.pages = []; changed();
   };
   $('tBlank').onclick = function () {
     var first = state.pages[0], aspect = first ? first.w / first.h : 0.7071;
-    var c = U.whiteCanvas(1200, 1200 / aspect);
-    state.pages.push(U.pageFromCanvas(c, 'Blank page', null, 0.9));
-    render(); saveDraft();
+    state.pages.push(U.pageFromCanvas(U.whiteCanvas(1200, 1200 / aspect), 'Blank page', null, 0.9));
+    changed();
     notify('Blank page added at the end — drag it into place');
   };
+  // close the Settings dropdown when clicking elsewhere
+  document.addEventListener('click', function (e) {
+    var d = document.querySelector('.settings');
+    if (d.open && !d.contains(e.target)) d.open = false;
+  });
   if (!S.ocr.supported()) {
     $('ocr').checked = false; $('ocr').disabled = true;
-    $('ocr').parentNode.title = 'This browser can’t run the offline text reader';
+    $('ocr').closest('label').title = 'This browser can’t run the offline text reader';
   }
 
   // ======================================================== draft autosave
   var draftTimer;
+  function writeDraft() {
+    clearTimeout(draftTimer);
+    return store.saveDraft({ title: state.title, editingId: state.editingId, dirty: state.dirty, pages: state.pages })
+      .catch(function (e) { console.warn('Draft not saved', e); });
+  }
+  /** Debounced autosave for frequent edits (typing, dragging). */
   function saveDraft() {
     clearTimeout(draftTimer);
-    draftTimer = setTimeout(function () {
-      store.saveDraft({ title: state.title, editingId: state.editingId, pages: state.pages })
-        .catch(function (e) { console.warn('Draft not saved', e); });
-    }, 600);
+    draftTimer = setTimeout(writeDraft, 400);
   }
   async function loadDraft() {
     try {
       var d = await store.loadDraft();
-      if (d && d.pages) { state.pages = d.pages; state.editingId = d.editingId || null; setTitle(d.title); }
+      if (d && d.pages) {
+        state.pages = d.pages; state.editingId = d.editingId || null;
+        state.dirty = d.dirty == null ? !d.editingId && d.pages.length > 0 : d.dirty;  // older drafts had no flag
+        setTitle(d.title);
+      }
     } catch (e) { /* storage unavailable: start empty */ }
-    render();
   }
 
-  // ======================================================== read / save / download
-  function currentData() { return ex.toData(state.title, state.pages); }
+  // ======================================================== preview / save / download
+  function currentData() { return ex.toData(state.title || 'Untitled flipbook', state.pages); }
 
   var reader = null;
   function openReader(data, startPage) {
@@ -309,9 +366,10 @@
     try {
       var prev = state.editingId ? await store.getMeta(id) : null;
       await store.saveBook(id, data, prev && prev.created);
-      state.editingId = id;
-      render(); saveDraft(); refreshLibrary();
-      notify((prev ? 'Updated “' : 'Saved “') + data.title + '” in your library');
+      state.editingId = id; state.dirty = false;
+      await writeDraft();          // immediately, so a reload right after saving can't resurrect "unsaved"
+      renderEditor(); refreshCount();
+      notify((prev ? 'Updated “' : 'Saved “') + data.title + '” in My flipbooks');
     } catch (e) {
       notify(store.available ? 'Couldn’t save — browser storage may be full' : 'This browser blocks storage here — use Download to keep your flipbook', true, 7000);
     }
@@ -321,56 +379,80 @@
   $('bSave').onclick = saveToLibrary;
   $('bDownload').onclick = function () { download(currentData()); };
 
-  // ======================================================== library
-  async function refreshLibrary() {
+  // ======================================================== home
+  async function refreshCount() {
+    try {
+      var n = (await store.listBooks()).length;
+      $('libCount').textContent = n ? U.pad2(n) : '';
+    } catch (e) { $('libCount').textContent = ''; }
+  }
+
+  async function renderHome() {
+    // resume card for unsaved work
+    var hasDraft = state.dirty && state.pages.length > 0;
+    $('resume').hidden = !hasDraft;
+    if (hasDraft) {
+      $('resumeCover').src = state.pages[0].thumb;
+      $('resumeTitle').textContent = state.title || 'Untitled flipbook';
+      $('resumeMeta').textContent = U.pad2(state.pages.length) + ' pages' + (state.editingId ? ' — edits to a saved flipbook' : ' — new flipbook');
+    }
+
     var books = [];
+    var shelf = $('shelf');
     try { books = await store.listBooks(); }
     catch (e) {
-      $('libCount').textContent = '';
-      $('libNum').textContent = '';
-      $('shelf').innerHTML = '<p class="empty-lib">This browser doesn’t allow storage for files opened from disk. <em>Download</em> your flipbooks to keep them.</p>';
+      shelf.replaceChildren(newCard());
+      $('storageNote').textContent = 'This browser doesn’t allow storage for files opened from disk — use Download to keep your flipbooks.';
       return;
     }
     $('libCount').textContent = books.length ? U.pad2(books.length) : '';
-    $('libNum').textContent = books.length ? '(' + U.pad2(books.length) + ')' : '';
-    if (!books.length) {
-      $('shelf').innerHTML = '<p class="empty-lib">Nothing here yet. Make a flipbook and choose <em>Save to library</em>, or import a downloaded flipbook.</p>';
-      return;
-    }
     var frag = document.createDocumentFragment();
-    books.forEach(function (m, k) {
+    frag.appendChild(newCard());
+    if (!books.length) {
+      var p = document.createElement('p');
+      p.className = 'shelf-empty';
+      p.textContent = 'Nothing saved yet. Your saved flipbooks will appear here.';
+      frag.appendChild(p);
+    }
+    books.forEach(function (m) {
       var c = document.createElement('article');
       c.className = 'book';
       var date = new Date(m.updated);
       c.innerHTML =
         '<div class="cover" role="button" tabindex="0" title="Read"><img alt=""></div>' +
-        '<span class="book-no label soft num">No. ' + U.pad2(books.length - k) + '</span>' +
         '<h3></h3>' +
-        '<span class="label soft num">' + U.pad2(m.count) + ' pages — ' + U.pad2(date.getDate()) + '.' + U.pad2(date.getMonth() + 1) + '.' + date.getFullYear() +
-          (m.searchable ? ' — searchable' : '') + '</span>' +
+        '<span class="meta num">' + U.pad2(m.count) + ' pages · ' + U.pad2(date.getDate()) + '.' + U.pad2(date.getMonth() + 1) + '.' + date.getFullYear() +
+          (m.searchable ? ' · searchable' : '') + '</span>' +
         '<div class="row">' +
-          '<button class="tool" data-a="read">Read</button>' +
-          '<button class="tool" data-a="edit">Edit</button>' +
-          '<button class="tool" data-a="dl">Download</button>' +
-          '<button class="tool danger" data-a="del">Delete</button>' +
+          '<button class="btn-text" data-a="read">Read</button>' +
+          '<button class="btn-text" data-a="edit">Edit</button>' +
+          '<button class="btn-text" data-a="dl">Download</button>' +
+          '<button class="btn-text danger" data-a="del">Delete</button>' +
         '</div>';
       c.querySelector('img').src = m.cover;
       c.querySelector('h3').textContent = m.title;
       var cover = c.querySelector('.cover');
-      cover.onclick = function () { libraryAction('read', m); };
-      cover.onkeydown = function (e) { if (e.key === 'Enter') libraryAction('read', m); };
-      c.querySelectorAll('[data-a]').forEach(function (b) { b.onclick = function () { libraryAction(b.dataset.a, m); }; });
+      cover.onclick = function () { bookAction('read', m); };
+      cover.onkeydown = function (e) { if (e.key === 'Enter') bookAction('read', m); };
+      c.querySelectorAll('[data-a]').forEach(function (b) { b.onclick = function () { bookAction(b.dataset.a, m); }; });
       frag.appendChild(c);
     });
-    $('shelf').replaceChildren(frag);
+    shelf.replaceChildren(frag);
+  }
+  function newCard() {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'new-card'; b.id = 'newCard';
+    b.innerHTML = '<span class="plus">+</span><span class="kicker">New flipbook</span><span class="meta">from PDFs &amp; images</span>';
+    b.onclick = startNew;
+    return b;
   }
 
-  async function libraryAction(action, meta) {
+  async function bookAction(action, meta) {
     if (action === 'del') {
-      if (!confirm('Delete “' + meta.title + '” from the library? Downloaded copies are not affected.')) return;
+      if (!confirm('Delete “' + meta.title + '” from My flipbooks? Downloaded copies are not affected.')) return;
       await store.deleteBook(meta.id);
-      if (state.editingId === meta.id) { state.editingId = null; render(); saveDraft(); }
-      refreshLibrary(); notify('Deleted “' + meta.title + '”');
+      if (state.editingId === meta.id) { state.editingId = null; state.dirty = state.pages.length > 0; saveDraft(); }
+      renderHome(); notify('Deleted “' + meta.title + '”');
       return;
     }
     var data = await store.loadBook(meta.id);
@@ -378,11 +460,14 @@
     if (action === 'read') openReader(data);
     else if (action === 'dl') download(data);
     else if (action === 'edit') {
-      if (state.pages.length && state.editingId !== meta.id && !confirm('Replace the pages on the board with “' + meta.title + '”?')) return;
-      try { state.pages = await S.importers.pagesFromData(data, progress); }
-      finally { $('status').hidden = true; }
-      state.editingId = meta.id; setTitle(data.title);
-      render(); saveDraft(); showView('make');
+      if (state.editingId !== meta.id && !okToDiscard('Open “' + meta.title + '”')) return;
+      if (state.editingId !== meta.id || !state.dirty) {
+        try { state.pages = await S.importers.pagesFromData(data, progress); }
+        finally { $('status').hidden = true; }
+        state.editingId = meta.id; state.dirty = false; setTitle(data.title);
+        saveDraft();
+      }
+      show('edit');
     }
   }
 
@@ -393,8 +478,7 @@
       try {
         var data = ex.parse(await files[i].text());
         if (!data) throw new Error('not a flipbook');
-        // normalise older files so the library has thumbs + ratios
-        var pages = await S.importers.pagesFromData(data);
+        var pages = await S.importers.pagesFromData(data);   // normalises older files (thumbs + ratios)
         await store.saveBook(U.uid(), ex.toData(data.title, pages));
         ok++;
       } catch (e) {
@@ -402,29 +486,22 @@
         notify('“' + files[i].name + '” isn’t a Flipbook Studio file', true, 5000);
       }
     }
-    if (ok) { refreshLibrary(); notify('Imported ' + ok + ' flipbook' + (ok === 1 ? '' : 's')); }
+    if (ok) { renderHome(); notify('Imported ' + ok + ' flipbook' + (ok === 1 ? '' : 's')); }
   }
   $('bImport').onclick = function () { $('importInput').value = ''; $('importInput').click(); };
   $('importInput').onchange = function () { importToLibrary(Array.prototype.slice.call(this.files)); };
-  $('view-library').addEventListener('dragover', function (e) { if (isFileDrag(e)) e.preventDefault(); });
-  $('view-library').addEventListener('drop', function (e) {
-    if (isFileDrag(e)) { e.preventDefault(); importToLibrary(Array.prototype.slice.call(e.dataTransfer.files)); }
-  });
 
-  // ======================================================== navigation
-  function showView(view) {
-    document.querySelectorAll('.mast-tab').forEach(function (t) { t.classList.toggle('is-active', t.dataset.view === view); });
-    $('view-make').hidden = view !== 'make';
-    $('view-library').hidden = view !== 'library';
-    if (view === 'library') refreshLibrary();
-    window.scrollTo(0, 0);
-  }
-  document.querySelectorAll('.mast-tab').forEach(function (t) { t.onclick = function () { showView(t.dataset.view); }; });
+  $('resumeGo').onclick = function () { show('edit'); };
+  $('resumeDiscard').onclick = function () {
+    if (!confirm('Discard the unsaved changes to “' + (state.title || 'Untitled flipbook') + '”?')) return;
+    state.pages = []; state.title = ''; state.editingId = null; state.dirty = false;
+    $('title').value = '';
+    saveDraft(); renderHome();
+  };
 
-  // ======================================================== boot
-  loadDraft();
-  refreshLibrary();
+  // ======================================================== boot: always land on Home
+  loadDraft().then(function () { show('home'); });
 
   // Hooks for the automated end-to-end tests (tests/e2e.mjs).
-  S.app = { state: state, addFiles: addFiles, currentData: currentData, openReader: openReader, closeReader: closeReader, refreshLibrary: refreshLibrary };
+  S.app = { state: state, addFiles: addFiles, currentData: currentData, openReader: openReader, closeReader: closeReader, show: show };
 })(window.Studio);

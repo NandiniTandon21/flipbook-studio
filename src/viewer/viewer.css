@@ -10,8 +10,8 @@
   --fb-soft: rgba(239, 231, 216, .55);
   --fb-rule: rgba(239, 231, 216, .16);
   --fb-hit: rgba(255, 196, 0, .42);
-  --fb-sans: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
-  --fb-serif: "Instrument Serif", "Times New Roman", Times, serif;
+  --fb-sans: "IBM Plex Mono", ui-monospace, Menlo, monospace;                       /* labels + controls */
+  --fb-serif: "FS Advercase", "EB Garamond", Garamond, "Times New Roman", serif;    /* titles; Advercase if installed */
 
   position: relative; width: 100%; height: 100%;
   display: grid; grid-template-rows: minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr) auto;
