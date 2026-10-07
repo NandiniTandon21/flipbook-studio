@@ -6,6 +6,7 @@
   See docs/ARCHITECTURE.md for the full map.
 
   Screens:  Home (#view-home)  →  Editor (#view-edit)  →  Reader overlay (#viewer)
+  Layout:   a ruled grid of cells (1px plum rules on bone), alternating cornflower fills.
 -->
 <html lang="en">
 <head>
@@ -22,78 +23,69 @@
 </head>
 <body>
 
-<!-- ───────────── Top bar (always visible) ───────────── -->
-<header class="topbar">
-  <button class="brand" data-go="home" aria-label="Flipbook Studio — home">Flipbook <em>Studio</em></button>
-  <span class="topbar-note">Offline · private · nothing is uploaded</span>
-  <nav class="topbar-nav" aria-label="Main">
-    <button class="navlink" data-go="home" id="navHome">My flipbooks <span id="libCount" class="count"></span></button>
-    <button class="btn btn-primary" id="navNew">+ New flipbook</button>
+<!-- ───────────── Header: brand row + full-width nav cells ───────────── -->
+<header class="header">
+  <div class="header-top">
+    <button class="brand" data-go="home" aria-label="Flipbook Studio — home">Flipbook <em>Studio</em></button>
+    <p class="header-info">Offline · private<br>nothing is uploaded</p>
+  </div>
+  <nav class="navcells" aria-label="Main">
+    <button class="navcell" data-go="home" id="navHome">My flipbooks <span id="libCount" class="count"></span></button>
+    <button class="navcell" id="navNew">+ New flipbook</button>
+    <button class="navcell" id="navImport">Import a flipbook file</button>
   </nav>
 </header>
 
 <main>
-  <!-- ───────────── Home: your flipbooks ───────────── -->
+  <!-- ───────────── Home ───────────── -->
   <section id="view-home" class="view">
-    <div class="home-head">
-      <p class="kicker">Your shelf</p>
+    <div class="pagehead">
       <h1 class="display">My flipbooks</h1>
-      <p class="lede">Turn PDFs and images into magazines that turn pages. Everything stays on this computer.</p>
+      <p class="pagehead-meta" id="homeMeta">Saved in this browser · downloads are your permanent copies</p>
     </div>
 
     <div class="resume" id="resume" hidden>
       <div class="resume-cover"><img id="resumeCover" alt=""></div>
       <div class="resume-text">
-        <p class="kicker accent">Not saved yet</p>
+        <span class="label">Not saved yet</span>
         <h2 id="resumeTitle"></h2>
-        <p class="meta" id="resumeMeta"></p>
+        <span class="small" id="resumeMeta"></span>
       </div>
-      <div class="resume-actions">
-        <button class="btn btn-primary" id="resumeGo">Continue editing →</button>
-        <button class="btn-text" id="resumeDiscard">Discard</button>
-      </div>
+      <button class="cellbtn cellbtn-fill" id="resumeGo">Continue editing →</button>
+      <button class="cellbtn" id="resumeDiscard">Discard</button>
     </div>
 
-    <div class="shelf" id="shelf"></div>
-
-    <p class="home-foot">
-      <button class="btn-text" id="bImport">Import a downloaded flipbook (.html)</button>
-      <span class="meta" id="storageNote">Saved flipbooks live in this browser. Downloaded files are your permanent copies.</span>
-    </p>
+    <div class="grid shelf" id="shelf"></div>
   </section>
 
   <!-- ───────────── Editor ───────────── -->
   <section id="view-edit" class="view" hidden>
     <div class="editbar">
-      <button class="btn-text back" data-go="home">← My flipbooks</button>
+      <button class="cellbtn back" data-go="home">← My flipbooks</button>
       <label class="title-field">
-        <span class="kicker">Title</span>
+        <span class="label">Title</span>
         <input id="title" placeholder="Untitled flipbook" maxlength="120" autocomplete="off" spellcheck="false">
       </label>
       <span id="saveState" class="save-state"></span>
-      <div class="editbar-actions">
-        <button class="btn" id="bRead">Preview</button>
-        <button class="btn" id="bSave">Save</button>
-        <button class="btn btn-primary" id="bDownload">Download ↓</button>
-      </div>
+      <button class="cellbtn" id="bRead">Preview</button>
+      <button class="cellbtn" id="bSave">Save</button>
+      <button class="cellbtn cellbtn-fill" id="bDownload">Download ↓</button>
     </div>
 
     <ol class="steps" id="steps">
-      <li data-step="1"><b>1</b> Add PDFs or images</li>
-      <li data-step="2"><b>2</b> Drag pages into order</li>
-      <li data-step="3"><b>3</b> Preview, save or download</li>
+      <li><span class="step-no">01</span> Add PDFs or images</li>
+      <li><span class="step-no">02</span> Drag pages into order</li>
+      <li><span class="step-no">03</span> Preview, save or download</li>
     </ol>
 
-    <div class="toolbar" role="toolbar" aria-label="Pages">
-      <div class="tools">
-        <button class="tool" id="tAdd">+ Add pages</button>
-        <button class="tool" id="tBlank">Blank page</button>
-        <button class="tool" id="tReverse">Reverse</button>
-        <button class="tool" id="tSort">Sort A–Z</button>
-        <button class="tool danger" id="tClear">Remove all</button>
-      </div>
+    <div class="toolrow" role="toolbar" aria-label="Pages">
+      <button class="cellbtn" id="tAdd">+ Add pages</button>
+      <button class="cellbtn" id="tBlank">Blank page</button>
+      <button class="cellbtn" id="tReverse">Reverse</button>
+      <button class="cellbtn" id="tSort">Sort A–Z</button>
+      <button class="cellbtn" id="tClear">Remove all</button>
       <details class="settings">
-        <summary>Settings</summary>
+        <summary class="cellbtn">Settings</summary>
         <div class="settings-panel">
           <label class="setting">PDF page quality
             <select id="quality">
@@ -113,13 +105,13 @@
     <div class="board" id="board">
       <div class="drop" id="drop">
         <h2 class="display drop-title">Drop PDFs &amp; images here</h2>
-        <p class="lede">Each PDF page becomes a magazine page. You can arrange them next.</p>
-        <button class="btn btn-primary btn-lg" id="dropPick">Choose files</button>
-        <p class="meta">PDF · JPG · PNG · HEIC · WEBP — text in images is read in English</p>
+        <p class="drop-text">Each PDF page becomes a magazine page. You can arrange them next.</p>
+        <button class="cellbtn cellbtn-fill cellbtn-lg" id="dropPick">Choose files</button>
+        <p class="small">PDF · JPG · PNG · HEIC · WEBP — text in images is read in English</p>
       </div>
       <div id="pagesArea" hidden>
         <p class="hint">The first page is the <b>cover</b>. Drag pages to reorder, or use the arrows. Double-click a page to preview from there.</p>
-        <div class="spreads" id="spreads"></div>
+        <div class="grid spreads" id="spreads"></div>
       </div>
     </div>
   </section>

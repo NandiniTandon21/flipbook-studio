@@ -45,6 +45,7 @@
     $('view-home').hidden = view !== 'home';
     $('view-edit').hidden = view !== 'edit';
     $('navHome').classList.toggle('is-active', view === 'home');
+    $('navNew').classList.toggle('is-active', view === 'edit');
     if (view === 'home') renderHome();
     else renderEditor();
     window.scrollTo(0, 0);
@@ -64,6 +65,12 @@
     show('edit');
   }
   $('navNew').onclick = startNew;
+  $('navImport').onclick = function () { $('importInput').value = ''; $('importInput').click(); };
+
+  // keep the editor bar docked right under the (variable-height) header
+  function syncHeader() { document.documentElement.style.setProperty('--header-h', document.querySelector('.header').offsetHeight + 'px'); }
+  window.addEventListener('resize', syncHeader);
+  syncHeader();
 
   /** Any change to pages/title goes through here. */
   function changed() {
@@ -175,22 +182,32 @@
     spreads.forEach(function (sp, k) {
       var box = document.createElement('div');
       box.className = 'spread';
+      var pagesRow = document.createElement('div');
+      pagesRow.className = 'spread-pages';
       [sp[0], sp[1]].forEach(function (i, side) {
-        if (i != null) box.appendChild(tile(i, side ? 'right' : 'left'));
-        else if (k === spreads.length - 1 && side === 1) { box.appendChild(addSlot()); addPlaced = true; }
-        else box.appendChild(Object.assign(document.createElement('div'), { className: 'slot' }));
+        if (i != null) pagesRow.appendChild(tile(i, side ? 'right' : 'left'));
+        else if (k === spreads.length - 1 && side === 1) { pagesRow.appendChild(addSlot()); addPlaced = true; }
+        else pagesRow.appendChild(Object.assign(document.createElement('div'), { className: 'slot' }));
       });
+      box.appendChild(pagesRow);
       var label = document.createElement('div');
       label.className = 'spread-label';
       var pp = sp.filter(function (x) { return x != null; }).map(function (x) { return U.pad2(x + 1); }).join('—');
-      label.innerHTML = '<span>' + (k === 0 ? 'Front cover' : 'Spread ' + U.pad2(k)) + '</span><span class="soft num">p. ' + pp + '</span>';
+      label.innerHTML = '<b>' + (k === 0 ? 'Front cover' : 'Spread ' + U.pad2(k)) + '</b><span class="num">p. ' + pp + '</span>';
       box.appendChild(label);
       frag.appendChild(box);
     });
     if (!addPlaced) {
       var box = document.createElement('div');
       box.className = 'spread';
-      box.appendChild(addSlot());
+      var row = document.createElement('div');
+      row.className = 'spread-pages';
+      row.appendChild(addSlot());
+      box.appendChild(row);
+      var lab = document.createElement('div');
+      lab.className = 'spread-label';
+      lab.innerHTML = '<b>Next spread</b><span>add pages</span>';
+      box.appendChild(lab);
       frag.appendChild(box);
     }
     $('spreads').replaceChildren(frag);
@@ -406,31 +423,34 @@
       return;
     }
     $('libCount').textContent = books.length ? U.pad2(books.length) : '';
+    $('homeMeta').textContent = (books.length ? U.pad2(books.length) + ' flipbook' + (books.length === 1 ? '' : 's') : 'Nothing saved yet') + ' · saved in this browser · downloads are your permanent copies';
     var frag = document.createDocumentFragment();
     frag.appendChild(newCard());
     if (!books.length) {
       var p = document.createElement('p');
       p.className = 'shelf-empty';
-      p.textContent = 'Nothing saved yet. Your saved flipbooks will appear here.';
+      p.textContent = 'Your saved flipbooks will appear here.';
       frag.appendChild(p);
     }
     books.forEach(function (m) {
       var c = document.createElement('article');
-      c.className = 'book';
+      c.className = 'cell book';
       var date = new Date(m.updated);
       c.innerHTML =
-        '<div class="cover" role="button" tabindex="0" title="Read"><img alt=""></div>' +
-        '<h3></h3>' +
-        '<span class="meta num">' + U.pad2(m.count) + ' pages · ' + U.pad2(date.getDate()) + '.' + U.pad2(date.getMonth() + 1) + '.' + date.getFullYear() +
-          (m.searchable ? ' · searchable' : '') + '</span>' +
-        '<div class="row">' +
-          '<button class="btn-text" data-a="read">Read</button>' +
-          '<button class="btn-text" data-a="edit">Edit</button>' +
-          '<button class="btn-text" data-a="dl">Download</button>' +
-          '<button class="btn-text danger" data-a="del">Delete</button>' +
+        '<div class="cell-media"><div class="cover" role="button" tabindex="0" title="Read"><img alt=""></div></div>' +
+        '<div>' +
+          '<div class="cell-caption"><span class="cell-title"></span><span class="cell-sub num">' + U.pad2(m.count) + ' p.</span></div>' +
+          '<div class="small num">' + U.pad2(date.getDate()) + '.' + U.pad2(date.getMonth() + 1) + '.' + date.getFullYear() + (m.searchable ? ' · searchable' : '') + '</div>' +
+          '<div class="cell-actions">' +
+            '<button data-a="read">Read</button>' +
+            '<button data-a="edit">Edit</button>' +
+            '<button data-a="dl">Download</button>' +
+            '<button data-a="del">Delete</button>' +
+          '</div>' +
         '</div>';
       c.querySelector('img').src = m.cover;
-      c.querySelector('h3').textContent = m.title;
+      c.querySelector('.cell-title').textContent = m.title;
+      c.querySelector('.cell-title').title = m.title;
       var cover = c.querySelector('.cover');
       cover.onclick = function () { bookAction('read', m); };
       cover.onkeydown = function (e) { if (e.key === 'Enter') bookAction('read', m); };
@@ -441,8 +461,8 @@
   }
   function newCard() {
     var b = document.createElement('button');
-    b.type = 'button'; b.className = 'new-card'; b.id = 'newCard';
-    b.innerHTML = '<span class="plus">+</span><span class="kicker">New flipbook</span><span class="meta">from PDFs &amp; images</span>';
+    b.type = 'button'; b.className = 'cell cell-new'; b.id = 'newCard';
+    b.innerHTML = '<span class="plus">+</span><span><span class="cell-caption"><span class="cell-title">New flipbook</span><span class="cell-sub">→</span></span><span class="small">from PDFs &amp; images</span></span>';
     b.onclick = startNew;
     return b;
   }
@@ -488,7 +508,6 @@
     }
     if (ok) { renderHome(); notify('Imported ' + ok + ' flipbook' + (ok === 1 ? '' : 's')); }
   }
-  $('bImport').onclick = function () { $('importInput').value = ''; $('importInput').click(); };
   $('importInput').onchange = function () { importToLibrary(Array.prototype.slice.call(this.files)); };
 
   $('resumeGo').onclick = function () { show('edit'); };

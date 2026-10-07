@@ -6,6 +6,7 @@
   See docs/ARCHITECTURE.md for the full map.
 
   Screens:  Home (#view-home)  →  Editor (#view-edit)  →  Reader overlay (#viewer)
+  Layout:   a ruled grid of cells (1px plum rules on bone), alternating cornflower fills.
 -->
 <html lang="en">
 <head>
@@ -29,11 +30,14 @@
    ========================================================================== */
 
 .fb-root {
-  --fb-bg: #2a211b;          /* deep editorial brown */
-  --fb-ink: #efe7d8;         /* cream */
-  --fb-soft: rgba(239, 231, 216, .55);
-  --fb-rule: rgba(239, 231, 216, .16);
-  --fb-hit: rgba(255, 196, 0, .42);
+  --fb-bg: #401F28;          /* plum */
+  --fb-ink: #E9E2DA;         /* bone */
+  --fb-soft: rgba(233, 226, 218, .6);
+  --fb-rule: rgba(233, 226, 218, .22);
+  --fb-panel: #E9E2DA;       /* search panel: bone with plum ink */
+  --fb-panel-ink: #401F28;
+  --fb-accent: #BDD5E2;      /* pale cornflower */
+  --fb-hit: rgba(189, 213, 226, .65);
   --fb-sans: "IBM Plex Mono", ui-monospace, Menlo, monospace;                       /* labels + controls */
   --fb-serif: "FS Advercase", "EB Garamond", Garamond, "Times New Roman", serif;    /* titles; Advercase if installed */
 
@@ -58,7 +62,7 @@
 }
 .fb-leaf.is-flipped { transform: rotateY(-180deg); }
 .fb-face {
-  position: absolute; inset: 0; overflow: hidden; background: #f6f3ed;
+  position: absolute; inset: 0; overflow: hidden; background: #F4F0EA;
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
   box-shadow: 0 18px 50px rgba(0, 0, 0, .38);
 }
@@ -86,7 +90,7 @@
 }
 .fb-text span::selection { background: rgba(60, 120, 255, .32); color: transparent; }
 .fb-text span.fb-hit { background: var(--fb-hit); }
-.fb-text span.fb-hit-cur { background: rgba(255, 140, 0, .6); outline: 2px solid rgba(255, 120, 0, .9); }
+.fb-text span.fb-hit-cur { background: rgba(189, 213, 226, .85); outline: 2px solid #401F28; }
 
 /* ---- bottom bar --------------------------------------------------------- */
 .fb-bar {
@@ -115,20 +119,21 @@
 /* ---- search panel ------------------------------------------------------- */
 .fb-search {
   grid-column: 2; grid-row: 1; width: min(360px, 86vw); display: flex; flex-direction: column; min-height: 0;
-  background: #efe7d8; color: #1b1814; user-select: text; -webkit-user-select: text;
+  background: var(--fb-panel); color: var(--fb-panel-ink); user-select: text; -webkit-user-select: text;
+  border-left: 1px solid var(--fb-panel-ink);
 }
 .fb-search[hidden] { display: none; }
-.fb-s-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px 10px; border-bottom: 1px solid rgba(27,24,20,.18); }
+.fb-s-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px 10px; border-bottom: 1px solid var(--fb-panel-ink); }
 .fb-s-input { flex: 1; min-width: 0; border: 0; background: none; padding: 6px 0; font: 26px/1.1 var(--fb-serif); color: inherit; outline: none; }
 .fb-s-input:focus-visible { outline: none; }
-.fb-s-input::placeholder { color: rgba(27,24,20,.4); }
-.fb-search .fb-tb { color: #1b1814; }
-.fb-s-meta { padding: 10px 20px; font: 500 11px/1 var(--fb-sans); letter-spacing: .14em; text-transform: uppercase; color: rgba(27,24,20,.55); min-height: 31px; }
+.fb-s-input::placeholder { color: rgba(64,31,40,.4); }
+.fb-search .fb-tb { color: var(--fb-panel-ink); }
+.fb-s-meta { padding: 10px 20px; font: 500 11px/1 var(--fb-sans); letter-spacing: .14em; text-transform: uppercase; color: rgba(64,31,40,.7); min-height: 31px; }
 .fb-s-list { list-style: none; margin: 0; padding: 0 0 20px; overflow: auto; flex: 1; position: relative; }
-.fb-s-item { appearance: none; display: grid; grid-template-columns: 44px 1fr; gap: 10px; width: 100%; text-align: left; border: 0; background: none; padding: 12px 20px; cursor: pointer; color: inherit; border-top: 1px solid rgba(27,24,20,.09); font: 14px/1.4 var(--fb-sans); }
-.fb-s-item:hover, .is-cur > .fb-s-item { background: rgba(27,24,20,.06); }
-.fb-s-page { font: 500 10.5px/1.9 var(--fb-sans); letter-spacing: .12em; color: rgba(27,24,20,.55); }
-.fb-s-snip mark { background: #ffd56b; color: inherit; padding: 0 1px; }
+.fb-s-item { appearance: none; display: grid; grid-template-columns: 44px 1fr; gap: 10px; width: 100%; text-align: left; border: 0; background: none; padding: 12px 20px; cursor: pointer; color: inherit; border-top: 1px solid rgba(64,31,40,.2); font: 14px/1.4 var(--fb-serif); }
+.fb-s-item:hover, .is-cur > .fb-s-item { background: var(--fb-accent); }
+.fb-s-page { font: 500 10.5px/1.9 var(--fb-sans); letter-spacing: .12em; color: rgba(64,31,40,.7); }
+.fb-s-snip mark { background: var(--fb-accent); color: inherit; padding: 0 1px; outline: 1px solid var(--fb-panel-ink); }
 
 @media (max-width: 680px) {
   .fb-bar { grid-template-columns: 1fr auto; padding: 10px 14px; }
@@ -140,293 +145,274 @@
 @media (prefers-reduced-motion: reduce) { .fb-book { transition-duration: .15s; } }
 </style>
 <style>/* ==========================================================================
-   Flipbook Studio — magazine UI
-   Display: Advercase (if installed) → EB Garamond.  Labels/controls: IBM Plex Mono.
-   Paper, ink, hairlines; one accent used sparingly.
+   Flipbook Studio — ruled-grid UI
+   One ink (plum) for every word and rule on bone, Readellion-style cells with
+   alternating cornflower fills, Utrecht-style utility labels.
+   Display: Advercase (if installed) → EB Garamond.  Labels: IBM Plex Mono.
    ========================================================================== */
 
 :root {
-  --paper: #f2eee6;
-  --paper-2: #e9e3d8;
-  --card: #fbf9f4;
-  --ink: #1a1714;
-  --soft: #6e675c;
-  --rule: rgba(26, 23, 20, .16);
-  --accent: #c2371f;
+  --bone: #E9E2DA;
+  --plum: #401F28;
+  --cornflower: #BDD5E2;
+  --powder: #B5C5D4;
+  --chocolate: #3E2923;
+  --paper: #F4F0EA;                  /* lighter bone for page sheets */
+  --ink: var(--plum);
+  --rule: 1px solid var(--plum);
   --display: "FS Advercase", "EB Garamond", Garamond, "Times New Roman", serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-  --gutter: clamp(18px, 3.4vw, 48px);
-  --bar-h: 64px;
+  --pad: clamp(14px, 1.6vw, 22px);
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
-body { background: var(--paper); color: var(--ink); font: 17px/1.5 var(--display); -webkit-font-smoothing: antialiased; }
+body { background: var(--bone); color: var(--ink); font: 17px/1.45 var(--display); -webkit-font-smoothing: antialiased; }
 button, input, select { font: inherit; color: inherit; }
 [hidden] { display: none !important; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--plum); outline-offset: -4px; }
+::selection { background: var(--cornflower); color: var(--plum); }
 
 /* ---- type ---------------------------------------------------------------- */
 .display { font-family: var(--display); font-weight: 400; letter-spacing: -.02em; line-height: .95; margin: 0; }
-.kicker { font: 500 11px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin: 0; }
-.kicker.accent { color: var(--accent); }
-.lede { font-size: clamp(18px, 1.6vw, 21px); line-height: 1.4; color: var(--soft); margin: 0; max-width: 36ch; }
-.meta { font: 400 12px/1.5 var(--mono); color: var(--soft); }
+.label { font: 500 11px/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.small { font: 400 12px/1.45 var(--mono); }
 .num { font-variant-numeric: tabular-nums; }
 
-/* ---- buttons -------------------------------------------------------------- */
-.btn {
-  appearance: none; cursor: pointer; border: 1px solid var(--ink); background: transparent; border-radius: 0;
-  padding: 10px 16px; font: 500 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+/* ---- cell buttons: every control is a ruled cell ------------------------- */
+.cellbtn {
+  appearance: none; cursor: pointer; border: 0; background: transparent; color: var(--ink); border-radius: 0;
+  padding: 0 var(--pad); min-height: 52px; display: inline-flex; align-items: center; justify-content: center;
+  font: 500 12.5px/1.2 var(--mono); letter-spacing: .04em; text-align: center; white-space: nowrap;
+  transition: background .12s, color .12s;
 }
-.btn:hover { background: var(--ink); color: var(--paper); }
-.btn-primary { background: var(--ink); color: var(--paper); }
-.btn-primary:hover { background: #000; }
-.btn-lg { padding: 15px 26px; font-size: 13px; }
-.btn:disabled { opacity: .3; cursor: default; }
-.btn:disabled:hover { background: transparent; color: var(--ink); }
-.btn-text {
-  appearance: none; border: 0; background: none; cursor: pointer; padding: 4px 0;
-  font: 500 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 4px;
-}
-.btn-text:hover { color: var(--accent); }
+.cellbtn:hover { background: var(--cornflower); }
+.cellbtn-fill { background: var(--plum); color: var(--bone); }
+.cellbtn-fill:hover { background: var(--chocolate); color: var(--bone); }
+.cellbtn-lg { min-height: 60px; padding: 0 34px; font-size: 13.5px; border: var(--rule); }
+.cellbtn:disabled { opacity: .3; cursor: default; background: transparent; }
+.cellbtn-fill:disabled { background: var(--plum); color: var(--bone); }
 
-/* ---- top bar -------------------------------------------------------------- */
-.topbar {
-  position: sticky; top: 0; z-index: 30; height: var(--bar-h); background: var(--paper);
-  display: flex; align-items: center; gap: 24px; padding: 0 var(--gutter); border-bottom: 1px solid var(--ink);
-}
-.brand { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: 400 26px/1 var(--display); letter-spacing: -.02em; }
+/* ---- header: brand row + nav cells (Readellion) --------------------------- */
+.header { position: sticky; top: 0; z-index: 30; background: var(--bone); border-bottom: var(--rule); }
+.header-top { display: flex; align-items: center; gap: 28px; padding: 12px var(--pad); border-bottom: var(--rule); }
+.brand { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: 400 34px/1 var(--display); letter-spacing: -.02em; color: var(--ink); }
 .brand em { font-style: italic; }
-.topbar-note { font: 400 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
-.topbar-nav { margin-left: auto; display: flex; align-items: center; gap: 22px; }
-.navlink { appearance: none; border: 0; background: none; cursor: pointer; padding: 6px 0; font: 500 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid transparent; }
-.navlink:hover, .navlink.is-active { border-bottom-color: var(--ink); }
-.count { color: var(--soft); margin-left: 4px; }
-
-/* ---- home ----------------------------------------------------------------- */
-.home-head { padding: clamp(36px, 6vw, 84px) var(--gutter) 30px; display: grid; gap: 14px; border-bottom: 1px solid var(--rule); margin: 0 var(--gutter); padding-left: 0; padding-right: 0; }
-.home-head .display { font-size: clamp(56px, 10vw, 150px); line-height: 1; padding-bottom: .06em; }
-
-.resume {
-  margin: 30px var(--gutter) 0; padding: 18px; background: var(--card); border: 1px solid var(--ink);
-  display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 22px; align-items: center;
+.header-info { margin: 0; font: 400 11.5px/1.35 var(--mono); text-decoration: underline; text-underline-offset: 3px; }
+.navcells { display: grid; grid-template-columns: repeat(3, 1fr); }
+.navcell {
+  appearance: none; cursor: pointer; border: 0; border-left: var(--rule); background: transparent; color: var(--ink);
+  height: 46px; font: 400 21px/1 var(--display); letter-spacing: -.01em;
 }
-.resume-cover { background: #fff; box-shadow: 0 1px 0 var(--rule); }
-.resume-cover img { display: block; width: 100%; height: auto; }
-.resume h2 { font: 400 30px/1.05 var(--display); margin: 4px 0; letter-spacing: -.01em; }
-.resume-actions { display: flex; gap: 18px; align-items: center; }
+.navcell:first-child { border-left: 0; }
+.navcell:hover { background: var(--cornflower); }
+.navcell.is-active { background: var(--plum); color: var(--bone); }
+.count { font: 500 11px/1 var(--mono); vertical-align: 3px; margin-left: 4px; }
 
-.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 48px 30px; padding: 34px var(--gutter) 30px; align-items: start; }
-.new-card {
-  appearance: none; cursor: pointer; aspect-ratio: .72; border: 1px dashed rgba(26,23,20,.45); background: transparent;
-  display: grid; place-content: center; gap: 10px; text-align: center; color: var(--ink);
-}
-.new-card:hover { background: var(--card); border-style: solid; }
-.new-card .plus { font: 400 64px/1 var(--display); }
-.new-card .kicker { color: var(--ink); }
-.book { display: flex; flex-direction: column; }
-.cover { position: relative; cursor: pointer; background: #fff; overflow: hidden; box-shadow: inset 7px 0 10px -8px rgba(0,0,0,.4), 0 18px 30px -18px rgba(40,25,10,.45); transition: transform .25s; }
+/* ---- page head (Utrecht breadcrumb row) ---------------------------------- */
+.pagehead { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 8px 24px; padding: 34px var(--pad) 14px; border-bottom: var(--rule); }
+.pagehead .display { font-size: clamp(44px, 6.5vw, 96px); line-height: 1; padding-bottom: .1em; }
+.pagehead-meta { margin: 0; font: 400 12px/1.4 var(--mono); }
+
+/* ---- ruled grid (shared by shelf + spreads) ------------------------------ */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.grid > * { border-right: var(--rule); border-bottom: var(--rule); min-width: 0; }
+.cell { position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 430px; padding: var(--pad); }
+.cell:nth-child(4n+1), .cell:nth-child(4n+4) { background: var(--cornflower); }
+.cell-media { flex: 1; display: grid; place-items: center; padding: 26px 18px 18px; }
+.cell-caption { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.cell-title { font: 400 23px/1.1 var(--display); letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell-sub { font: 400 12px/1.4 var(--mono); white-space: nowrap; }
+.cell-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(64, 31, 40, .35); }
+.cell-actions button { appearance: none; border: 0; background: none; padding: 2px 0; cursor: pointer; font: 500 11.5px/1.3 var(--mono); letter-spacing: .04em; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(64,31,40,.35); }
+.cell-actions button:hover { text-decoration-color: currentColor; }
+
+/* shelf */
+.cover { cursor: pointer; max-width: 72%; background: var(--paper); box-shadow: 0 1px 0 rgba(0,0,0,.08), 0 14px 26px -14px rgba(64,31,40,.55); transition: transform .2s; }
 .cover:hover { transform: translateY(-4px); }
 .cover img { display: block; width: 100%; height: auto; }
-.book h3 { margin: 14px 0 4px; font: 400 25px/1.05 var(--display); letter-spacing: -.01em; word-break: break-word; }
-.book .row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rule); }
-.book .row .btn-text { text-decoration: none; }
-.book .row .btn-text:hover { text-decoration: underline; }
-.book .row .danger:hover { color: var(--accent); }
-.shelf-empty { align-self: center; font: italic 400 26px/1.2 var(--display); color: var(--soft); max-width: 18ch; margin: 0; }
-.home-foot { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; padding: 0 var(--gutter) 110px; margin: 0; }
+.cell-new { appearance: none; cursor: pointer; border: 0; text-align: left; color: var(--bone); background: var(--plum) !important; }
+.cell-new:hover { background: var(--chocolate) !important; }
+.cell-new .plus { font: 400 150px/.8 var(--display); }
+.cell-new .cell-title { white-space: normal; }
+.shelf-empty { margin: 0; display: flex; align-items: end; padding: var(--pad); font: italic 400 26px/1.15 var(--display); background: transparent !important; }
 
-/* ---- editor: bar + steps ------------------------------------------------ */
-.editbar {
-  position: sticky; top: var(--bar-h); z-index: 20; background: var(--paper);
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 22px; align-items: end;
-  padding: 18px var(--gutter) 16px; border-bottom: 1px solid var(--rule);
-}
-.back { align-self: center; }
-.title-field { display: grid; gap: 2px; min-width: 0; }
-.title-field input {
-  width: 100%; border: 0; border-bottom: 1px solid transparent; background: none; outline: none; padding: 2px 0;
-  font: 400 clamp(28px, 3.4vw, 44px)/1.05 var(--display); letter-spacing: -.015em; text-overflow: ellipsis;
-}
-.title-field input:hover, .title-field input:focus { border-bottom-color: var(--ink); }
-.title-field input::placeholder { color: rgba(26,23,20,.3); }
-.save-state { align-self: center; font: 400 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--soft); white-space: nowrap; }
-.save-state.is-dirty { color: var(--accent); }
-.editbar-actions { display: flex; gap: 8px; align-self: center; }
+/* resume strip */
+.resume { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: stretch; border-bottom: var(--rule); background: var(--powder); }
+.resume > * + * { border-left: var(--rule); }
+.resume-cover { width: 92px; padding: 12px; display: grid; place-items: center; }
+.resume-cover img { display: block; width: 100%; height: auto; box-shadow: 0 6px 14px -8px rgba(64,31,40,.6); }
+.resume-text { padding: 14px var(--pad); display: grid; align-content: center; gap: 2px; }
+.resume h2 { font: 400 30px/1.05 var(--display); margin: 0; letter-spacing: -.01em; }
+.resume .cellbtn { min-height: 100%; }
 
-.steps { list-style: none; margin: 0; padding: 14px var(--gutter); display: flex; gap: 10px 34px; flex-wrap: wrap; border-bottom: 1px solid var(--rule); }
-.steps li { font: 400 12px/1 var(--mono); letter-spacing: .04em; color: var(--soft); display: flex; align-items: center; gap: 10px; }
-.steps b { display: inline-grid; place-items: center; width: 22px; height: 22px; border: 1px solid currentColor; border-radius: 50%; font-weight: 500; font-size: 11px; }
-.steps li.is-active { color: var(--ink); }
-.steps li.is-active b { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.steps li.is-done b { background: transparent; }
-.steps li.is-done b::after { content: ""; }
+/* ---- editor --------------------------------------------------------------- */
+.editbar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto auto; border-bottom: var(--rule); position: sticky; top: var(--header-h, 108px); z-index: 20; background: var(--bone); }
+.editbar > * + * { border-left: var(--rule); }
+.title-field { display: grid; align-content: center; padding: 8px var(--pad); min-width: 0; }
+.title-field input { width: 100%; border: 0; background: none; outline: none; padding: 0; font: 400 clamp(24px, 2.8vw, 36px)/1.1 var(--display); letter-spacing: -.01em; color: var(--ink); text-overflow: ellipsis; }
+.title-field input::placeholder { color: rgba(64,31,40,.35); }
+.title-field:focus-within { background: var(--paper); }
+.save-state { display: flex; align-items: center; padding: 0 var(--pad); font: 500 11px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.save-state.is-dirty { background: var(--powder); }
+.save-state:empty { padding: 0; }
 
-/* ---- editor: toolbar + settings ----------------------------------------- */
-.toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px 24px; padding: 12px var(--gutter); }
-.tools { display: flex; gap: 6px 22px; flex-wrap: wrap; }
-.tool { appearance: none; background: none; border: 0; padding: 6px 0; cursor: pointer; font: 500 12px/1 var(--mono); letter-spacing: .04em; border-bottom: 1px solid transparent; }
-.tool:hover { border-bottom-color: var(--ink); }
-.tool.danger:hover { color: var(--accent); border-bottom-color: var(--accent); }
-.tool:disabled { opacity: .3; cursor: default; border-bottom-color: transparent; }
-.settings { position: relative; }
-.settings summary { list-style: none; cursor: pointer; font: 500 12px/1 var(--mono); letter-spacing: .04em; padding: 6px 0; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: var(--rule); }
+.steps li { padding: 12px var(--pad); font: 400 12.5px/1.3 var(--mono); display: flex; gap: 12px; align-items: baseline; opacity: .5; }
+.steps li + li { border-left: var(--rule); }
+.steps .step-no { font: 400 26px/1 var(--display); }
+.steps li.is-active { opacity: 1; background: var(--cornflower); }
+.steps li.is-done { opacity: 1; }
+.steps li.is-done .step-no::after { content: " ✓"; font: 500 12px var(--mono); }
+
+.toolrow { display: flex; flex-wrap: wrap; border-bottom: var(--rule); }
+.toolrow > * { border-right: var(--rule); }
+.toolrow .cellbtn { min-height: 44px; }
+.settings { position: relative; margin-left: auto; border-right: 0; border-left: var(--rule); }
+.settings summary { list-style: none; height: 100%; }
 .settings summary::-webkit-details-marker { display: none; }
-.settings summary::after { content: " ▾"; }
-.settings[open] summary::after { content: " ▴"; }
-.settings-panel { position: absolute; right: 0; top: calc(100% + 8px); z-index: 15; width: 290px; background: var(--card); border: 1px solid var(--ink); padding: 16px; display: grid; gap: 16px; box-shadow: 0 16px 30px -18px rgba(0,0,0,.4); }
-.setting { display: grid; gap: 6px; font: 500 11px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--soft); }
-.setting select { border: 1px solid var(--rule); background: var(--paper); padding: 8px; border-radius: 0; font: 400 13px/1.2 var(--mono); text-transform: none; letter-spacing: 0; color: var(--ink); }
-.switch { grid-template-columns: auto 1fr; align-items: start; gap: 10px; color: var(--ink); cursor: pointer; }
-.switch small { color: var(--soft); text-transform: none; letter-spacing: 0; font-size: 11.5px; }
-.switch input { appearance: none; -webkit-appearance: none; width: 30px; height: 16px; border: 1px solid var(--ink); border-radius: 9px; margin: 0; position: relative; cursor: pointer; }
-.switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); transition: transform .15s; }
-.switch input:checked { background: var(--ink); }
-.switch input:checked::after { background: var(--paper); transform: translateX(14px); }
+.settings summary::after { content: " ▾"; white-space: pre; }
+.settings[open] summary { background: var(--plum); color: var(--bone); }
+.settings-panel { position: absolute; right: -1px; top: 100%; z-index: 25; width: 300px; background: var(--bone); border: var(--rule); padding: var(--pad); display: grid; gap: 16px; }
+.setting { display: grid; gap: 6px; font: 500 11px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.setting select { border: var(--rule); background: var(--paper); padding: 8px; border-radius: 0; font: 400 13px/1.2 var(--mono); text-transform: none; letter-spacing: 0; color: var(--ink); }
+.switch { grid-template-columns: auto 1fr; align-items: start; gap: 10px; cursor: pointer; }
+.switch small { text-transform: none; letter-spacing: 0; font-size: 11.5px; opacity: .75; }
+.switch input { appearance: none; -webkit-appearance: none; width: 30px; height: 16px; border: var(--rule); border-radius: 9px; margin: 0; position: relative; cursor: pointer; }
+.switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--plum); transition: transform .15s; }
+.switch input:checked { background: var(--plum); }
+.switch input:checked::after { background: var(--bone); transform: translateX(14px); }
 .switch input:disabled { opacity: .3; }
 
-/* ---- editor: board ------------------------------------------------------- */
-.board { padding: 6px var(--gutter) 120px; }
-.board.is-dragging-files .drop, .board.is-dragging-files .spreads { outline: 2px solid var(--accent); outline-offset: 8px; }
-.drop {
-  min-height: 52vh; border: 1px dashed rgba(26,23,20,.45); background: var(--card);
-  display: grid; place-content: center; justify-items: center; gap: 18px; padding: 56px 24px; text-align: center;
-}
-.drop-title { font-size: clamp(40px, 6vw, 84px); }
-.drop .lede { max-width: 40ch; }
-.hint { margin: 0 0 22px; font: 400 12.5px/1.5 var(--mono); color: var(--soft); }
-.hint b { color: var(--ink); font-weight: 500; }
+.board { padding-bottom: 110px; }
+.board.is-dragging-files .drop, .board.is-dragging-files .spreads { outline: 3px solid var(--plum); outline-offset: -3px; }
+.drop { min-height: 56vh; background: var(--cornflower); border-bottom: var(--rule); display: grid; place-content: center; justify-items: center; gap: 20px; padding: 56px 24px; text-align: center; }
+.drop-title { font-size: clamp(42px, 6.5vw, 96px); }
+.drop-text { margin: 0; font-size: 20px; max-width: 38ch; }
+.hint { margin: 0; padding: 10px var(--pad); font: 400 12px/1.5 var(--mono); border-bottom: var(--rule); }
 
-.spreads { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 44px 34px; align-items: end; }
-.spread { display: grid; grid-template-columns: 1fr 1fr; align-items: end; }
-.spread-label { grid-column: 1 / -1; margin-top: 10px; display: flex; justify-content: space-between; border-top: 1px solid var(--rule); padding-top: 8px; font: 500 11px/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
-.spread-label .soft { color: var(--soft); }
+/* spreads: each spread is a ruled cell */
+.spreads { grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); }
+.spread { display: flex; flex-direction: column; padding: var(--pad); }
+.spread:nth-child(4n+1), .spread:nth-child(4n+4) { background: var(--cornflower); }
+.spread-pages { flex: 1; display: grid; grid-template-columns: 1fr 1fr; align-items: end; padding: 22px 6px 16px; }
+.spread-label { display: flex; justify-content: space-between; font: 400 12px/1.4 var(--mono); }
+.spread-label b { font: 400 21px/1.1 var(--display); letter-spacing: -.01em; }
 .slot { min-height: 1px; }
 .tile { position: relative; cursor: grab; }
 .tile:active { cursor: grabbing; }
-.tile .sheet { position: relative; background: #fff; overflow: hidden; outline: 1px solid rgba(26,23,20,.08); }
-.tile.left .sheet { box-shadow: inset -10px 0 14px -12px rgba(0,0,0,.35); }
-.tile.right .sheet { box-shadow: inset 10px 0 14px -12px rgba(0,0,0,.35); }
+.tile .sheet { position: relative; background: var(--paper); overflow: hidden; box-shadow: 0 12px 22px -14px rgba(64,31,40,.6); }
+.tile.left .sheet::after, .tile.right .sheet::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+.tile.left .sheet::after { background: linear-gradient(to left, rgba(0,0,0,.18), transparent 10%); }
+.tile.right .sheet::after { background: linear-gradient(to right, rgba(0,0,0,.18), transparent 10%); }
 .tile img { display: block; width: 100%; height: auto; pointer-events: none; }
-.tile .pno { position: absolute; bottom: 6px; font: 500 10px/1 var(--mono); background: var(--paper); padding: 4px 5px; }
+.tile .pno { position: absolute; bottom: 6px; font: 500 10px/1 var(--mono); background: var(--bone); padding: 4px 5px; z-index: 1; }
 .tile.left .pno { left: 6px; } .tile.right .pno { right: 6px; }
-.tile .txt { position: absolute; top: 6px; font: 500 9.5px/1 var(--mono); text-transform: uppercase; background: var(--paper); color: var(--soft); padding: 4px 5px; }
+.tile .txt { position: absolute; top: 6px; font: 500 9.5px/1 var(--mono); text-transform: uppercase; background: var(--bone); padding: 4px 5px; z-index: 1; }
 .tile.left .txt { left: 6px; } .tile.right .txt { right: 6px; }
-.tile .acts { position: absolute; inset: auto 0 0 0; display: flex; justify-content: center; gap: 1px; padding: 6px; opacity: 0; transition: opacity .12s; }
+.tile .acts { position: absolute; inset: auto 0 0 0; z-index: 2; display: flex; justify-content: center; padding: 6px; opacity: 0; transition: opacity .12s; }
 .tile:hover .acts, .tile:focus-within .acts { opacity: 1; }
 @media (hover: none) { .tile .acts { opacity: 1; } }
-.ib { appearance: none; border: 0; background: var(--paper); width: 30px; height: 28px; cursor: pointer; font: 14px/1 var(--mono); color: var(--ink); }
-.ib:hover { background: var(--ink); color: var(--paper); }
-.ib.del:hover { background: var(--accent); }
+.ib { appearance: none; border: var(--rule); margin-left: -1px; background: var(--bone); width: 32px; height: 30px; cursor: pointer; font: 14px/1 var(--mono); color: var(--ink); }
+.ib:hover { background: var(--plum); color: var(--bone); }
 .tile.is-dragging { opacity: .3; }
-.tile.drop-before::before, .tile.drop-after::after { content: ""; position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--accent); z-index: 2; }
+.tile.drop-before::before, .tile.drop-after::after { content: ""; position: absolute; top: -8px; bottom: -8px; width: 3px; background: var(--plum); z-index: 3; }
 .tile.drop-before::before { left: -2px; }
 .tile.drop-after::after { right: -2px; }
-.add-slot { appearance: none; border: 1px dashed rgba(26,23,20,.45); background: none; cursor: pointer; aspect-ratio: var(--page-aspect, .7071); display: grid; place-items: center; font: 500 12px/1 var(--mono); color: var(--soft); }
-.add-slot:hover { color: var(--ink); border-color: var(--ink); background: var(--card); }
+.add-slot { appearance: none; cursor: pointer; border: 1px dashed var(--plum); background: transparent; aspect-ratio: var(--page-aspect, .7071); display: grid; place-items: center; font: 500 12px/1 var(--mono); color: var(--ink); }
+.add-slot:hover { background: var(--plum); color: var(--bone); border-style: solid; }
 
 /* ---- overlays ------------------------------------------------------------- */
 .viewer { position: fixed; inset: 0; z-index: 100; }
 .status {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 200; display: flex; justify-content: space-between; gap: 24px;
-  padding: 14px var(--gutter); background: var(--paper); border-top: 1px solid var(--ink);
-  font: 500 12px/1.3 var(--mono);
+  padding: 14px var(--pad); background: var(--plum); color: var(--bone); font: 500 12px/1.3 var(--mono);
 }
-.status.is-error { color: var(--accent); }
-.status-line { position: absolute; left: 0; top: -1px; height: 2px; width: 0; background: var(--ink); transition: width .2s; }
+.status.is-error { background: var(--chocolate); }
+.status-line { position: absolute; left: 0; top: 0; height: 3px; width: 0; background: var(--cornflower); transition: width .2s; }
 
-@media (max-width: 900px) {
-  .topbar-note { display: none; }
-  .editbar { grid-template-columns: 1fr auto; grid-template-areas: "back state" "title title" "actions actions"; }
-  .editbar .back { grid-area: back; justify-self: start; }
-  .editbar .save-state { grid-area: state; }
-  .title-field { grid-area: title; }
-  .editbar-actions { grid-area: actions; }
-  .resume { grid-template-columns: 56px 1fr; }
-  .resume-actions { grid-column: 1 / -1; }
+@media (max-width: 980px) {
+  .editbar { grid-template-columns: 1fr 1fr 1fr; top: 0; position: static; }
+  .editbar > * { border-top: var(--rule); }
+  .editbar > * + * { border-left: 0; }
+  .editbar .back, .title-field { grid-column: 1 / -1; }
+  .save-state { grid-column: 1 / -1; min-height: 34px; }
+  .resume { grid-template-columns: auto 1fr; }
+  .resume .cellbtn { grid-column: 1 / -1; border-left: 0; border-top: var(--rule); min-height: 50px; }
 }
-@media (max-width: 520px) {
-  .topbar { gap: 12px; }
-  .navlink { display: none; }
-  .brand { font-size: 22px; }
+@media (max-width: 640px) {
+  .header-info { display: none; }
+  .navcell { font-size: 16px; }
+  .steps { grid-template-columns: 1fr; }
+  .steps li + li { border-left: 0; border-top: var(--rule); }
 }
 </style>
 </head>
 <body>
 
-<!-- ───────────── Top bar (always visible) ───────────── -->
-<header class="topbar">
-  <button class="brand" data-go="home" aria-label="Flipbook Studio — home">Flipbook <em>Studio</em></button>
-  <span class="topbar-note">Offline · private · nothing is uploaded</span>
-  <nav class="topbar-nav" aria-label="Main">
-    <button class="navlink" data-go="home" id="navHome">My flipbooks <span id="libCount" class="count"></span></button>
-    <button class="btn btn-primary" id="navNew">+ New flipbook</button>
+<!-- ───────────── Header: brand row + full-width nav cells ───────────── -->
+<header class="header">
+  <div class="header-top">
+    <button class="brand" data-go="home" aria-label="Flipbook Studio — home">Flipbook <em>Studio</em></button>
+    <p class="header-info">Offline · private<br>nothing is uploaded</p>
+  </div>
+  <nav class="navcells" aria-label="Main">
+    <button class="navcell" data-go="home" id="navHome">My flipbooks <span id="libCount" class="count"></span></button>
+    <button class="navcell" id="navNew">+ New flipbook</button>
+    <button class="navcell" id="navImport">Import a flipbook file</button>
   </nav>
 </header>
 
 <main>
-  <!-- ───────────── Home: your flipbooks ───────────── -->
+  <!-- ───────────── Home ───────────── -->
   <section id="view-home" class="view">
-    <div class="home-head">
-      <p class="kicker">Your shelf</p>
+    <div class="pagehead">
       <h1 class="display">My flipbooks</h1>
-      <p class="lede">Turn PDFs and images into magazines that turn pages. Everything stays on this computer.</p>
+      <p class="pagehead-meta" id="homeMeta">Saved in this browser · downloads are your permanent copies</p>
     </div>
 
     <div class="resume" id="resume" hidden>
       <div class="resume-cover"><img id="resumeCover" alt=""></div>
       <div class="resume-text">
-        <p class="kicker accent">Not saved yet</p>
+        <span class="label">Not saved yet</span>
         <h2 id="resumeTitle"></h2>
-        <p class="meta" id="resumeMeta"></p>
+        <span class="small" id="resumeMeta"></span>
       </div>
-      <div class="resume-actions">
-        <button class="btn btn-primary" id="resumeGo">Continue editing →</button>
-        <button class="btn-text" id="resumeDiscard">Discard</button>
-      </div>
+      <button class="cellbtn cellbtn-fill" id="resumeGo">Continue editing →</button>
+      <button class="cellbtn" id="resumeDiscard">Discard</button>
     </div>
 
-    <div class="shelf" id="shelf"></div>
-
-    <p class="home-foot">
-      <button class="btn-text" id="bImport">Import a downloaded flipbook (.html)</button>
-      <span class="meta" id="storageNote">Saved flipbooks live in this browser. Downloaded files are your permanent copies.</span>
-    </p>
+    <div class="grid shelf" id="shelf"></div>
   </section>
 
   <!-- ───────────── Editor ───────────── -->
   <section id="view-edit" class="view" hidden>
     <div class="editbar">
-      <button class="btn-text back" data-go="home">← My flipbooks</button>
+      <button class="cellbtn back" data-go="home">← My flipbooks</button>
       <label class="title-field">
-        <span class="kicker">Title</span>
+        <span class="label">Title</span>
         <input id="title" placeholder="Untitled flipbook" maxlength="120" autocomplete="off" spellcheck="false">
       </label>
       <span id="saveState" class="save-state"></span>
-      <div class="editbar-actions">
-        <button class="btn" id="bRead">Preview</button>
-        <button class="btn" id="bSave">Save</button>
-        <button class="btn btn-primary" id="bDownload">Download ↓</button>
-      </div>
+      <button class="cellbtn" id="bRead">Preview</button>
+      <button class="cellbtn" id="bSave">Save</button>
+      <button class="cellbtn cellbtn-fill" id="bDownload">Download ↓</button>
     </div>
 
     <ol class="steps" id="steps">
-      <li data-step="1"><b>1</b> Add PDFs or images</li>
-      <li data-step="2"><b>2</b> Drag pages into order</li>
-      <li data-step="3"><b>3</b> Preview, save or download</li>
+      <li><span class="step-no">01</span> Add PDFs or images</li>
+      <li><span class="step-no">02</span> Drag pages into order</li>
+      <li><span class="step-no">03</span> Preview, save or download</li>
     </ol>
 
-    <div class="toolbar" role="toolbar" aria-label="Pages">
-      <div class="tools">
-        <button class="tool" id="tAdd">+ Add pages</button>
-        <button class="tool" id="tBlank">Blank page</button>
-        <button class="tool" id="tReverse">Reverse</button>
-        <button class="tool" id="tSort">Sort A–Z</button>
-        <button class="tool danger" id="tClear">Remove all</button>
-      </div>
+    <div class="toolrow" role="toolbar" aria-label="Pages">
+      <button class="cellbtn" id="tAdd">+ Add pages</button>
+      <button class="cellbtn" id="tBlank">Blank page</button>
+      <button class="cellbtn" id="tReverse">Reverse</button>
+      <button class="cellbtn" id="tSort">Sort A–Z</button>
+      <button class="cellbtn" id="tClear">Remove all</button>
       <details class="settings">
-        <summary>Settings</summary>
+        <summary class="cellbtn">Settings</summary>
         <div class="settings-panel">
           <label class="setting">PDF page quality
             <select id="quality">
@@ -446,13 +432,13 @@ button, input, select { font: inherit; color: inherit; }
     <div class="board" id="board">
       <div class="drop" id="drop">
         <h2 class="display drop-title">Drop PDFs &amp; images here</h2>
-        <p class="lede">Each PDF page becomes a magazine page. You can arrange them next.</p>
-        <button class="btn btn-primary btn-lg" id="dropPick">Choose files</button>
-        <p class="meta">PDF · JPG · PNG · HEIC · WEBP — text in images is read in English</p>
+        <p class="drop-text">Each PDF page becomes a magazine page. You can arrange them next.</p>
+        <button class="cellbtn cellbtn-fill cellbtn-lg" id="dropPick">Choose files</button>
+        <p class="small">PDF · JPG · PNG · HEIC · WEBP — text in images is read in English</p>
       </div>
       <div id="pagesArea" hidden>
         <p class="hint">The first page is the <b>cover</b>. Drag pages to reorder, or use the arrows. Double-click a page to preview from there.</p>
-        <div class="spreads" id="spreads"></div>
+        <div class="grid spreads" id="spreads"></div>
       </div>
     </div>
   </section>
@@ -1720,7 +1706,7 @@ window.Studio = window.Studio || {};
       '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
       '<meta name="generator" content="Flipbook Studio">\n' +
       '<title>' + U.escapeHtml(data.title) + '</title>\n' +
-      '<style>html,body{margin:0;height:100%;background:#2a211b}#flipbook{position:fixed;inset:0}</style>\n' +
+      '<style>html,body{margin:0;height:100%;background:#401F28}#flipbook{position:fixed;inset:0}</style>\n' +
       '<style>' + text('fonts-css') + '</style>\n' +
       '<style>' + text('viewer-css') + '</style>\n' +
       '</head><body><div id="flipbook"></div>\n' +
@@ -1820,6 +1806,7 @@ window.Studio = window.Studio || {};
     $('view-home').hidden = view !== 'home';
     $('view-edit').hidden = view !== 'edit';
     $('navHome').classList.toggle('is-active', view === 'home');
+    $('navNew').classList.toggle('is-active', view === 'edit');
     if (view === 'home') renderHome();
     else renderEditor();
     window.scrollTo(0, 0);
@@ -1839,6 +1826,12 @@ window.Studio = window.Studio || {};
     show('edit');
   }
   $('navNew').onclick = startNew;
+  $('navImport').onclick = function () { $('importInput').value = ''; $('importInput').click(); };
+
+  // keep the editor bar docked right under the (variable-height) header
+  function syncHeader() { document.documentElement.style.setProperty('--header-h', document.querySelector('.header').offsetHeight + 'px'); }
+  window.addEventListener('resize', syncHeader);
+  syncHeader();
 
   /** Any change to pages/title goes through here. */
   function changed() {
@@ -1950,22 +1943,32 @@ window.Studio = window.Studio || {};
     spreads.forEach(function (sp, k) {
       var box = document.createElement('div');
       box.className = 'spread';
+      var pagesRow = document.createElement('div');
+      pagesRow.className = 'spread-pages';
       [sp[0], sp[1]].forEach(function (i, side) {
-        if (i != null) box.appendChild(tile(i, side ? 'right' : 'left'));
-        else if (k === spreads.length - 1 && side === 1) { box.appendChild(addSlot()); addPlaced = true; }
-        else box.appendChild(Object.assign(document.createElement('div'), { className: 'slot' }));
+        if (i != null) pagesRow.appendChild(tile(i, side ? 'right' : 'left'));
+        else if (k === spreads.length - 1 && side === 1) { pagesRow.appendChild(addSlot()); addPlaced = true; }
+        else pagesRow.appendChild(Object.assign(document.createElement('div'), { className: 'slot' }));
       });
+      box.appendChild(pagesRow);
       var label = document.createElement('div');
       label.className = 'spread-label';
       var pp = sp.filter(function (x) { return x != null; }).map(function (x) { return U.pad2(x + 1); }).join('—');
-      label.innerHTML = '<span>' + (k === 0 ? 'Front cover' : 'Spread ' + U.pad2(k)) + '</span><span class="soft num">p. ' + pp + '</span>';
+      label.innerHTML = '<b>' + (k === 0 ? 'Front cover' : 'Spread ' + U.pad2(k)) + '</b><span class="num">p. ' + pp + '</span>';
       box.appendChild(label);
       frag.appendChild(box);
     });
     if (!addPlaced) {
       var box = document.createElement('div');
       box.className = 'spread';
-      box.appendChild(addSlot());
+      var row = document.createElement('div');
+      row.className = 'spread-pages';
+      row.appendChild(addSlot());
+      box.appendChild(row);
+      var lab = document.createElement('div');
+      lab.className = 'spread-label';
+      lab.innerHTML = '<b>Next spread</b><span>add pages</span>';
+      box.appendChild(lab);
       frag.appendChild(box);
     }
     $('spreads').replaceChildren(frag);
@@ -2181,31 +2184,34 @@ window.Studio = window.Studio || {};
       return;
     }
     $('libCount').textContent = books.length ? U.pad2(books.length) : '';
+    $('homeMeta').textContent = (books.length ? U.pad2(books.length) + ' flipbook' + (books.length === 1 ? '' : 's') : 'Nothing saved yet') + ' · saved in this browser · downloads are your permanent copies';
     var frag = document.createDocumentFragment();
     frag.appendChild(newCard());
     if (!books.length) {
       var p = document.createElement('p');
       p.className = 'shelf-empty';
-      p.textContent = 'Nothing saved yet. Your saved flipbooks will appear here.';
+      p.textContent = 'Your saved flipbooks will appear here.';
       frag.appendChild(p);
     }
     books.forEach(function (m) {
       var c = document.createElement('article');
-      c.className = 'book';
+      c.className = 'cell book';
       var date = new Date(m.updated);
       c.innerHTML =
-        '<div class="cover" role="button" tabindex="0" title="Read"><img alt=""></div>' +
-        '<h3></h3>' +
-        '<span class="meta num">' + U.pad2(m.count) + ' pages · ' + U.pad2(date.getDate()) + '.' + U.pad2(date.getMonth() + 1) + '.' + date.getFullYear() +
-          (m.searchable ? ' · searchable' : '') + '</span>' +
-        '<div class="row">' +
-          '<button class="btn-text" data-a="read">Read</button>' +
-          '<button class="btn-text" data-a="edit">Edit</button>' +
-          '<button class="btn-text" data-a="dl">Download</button>' +
-          '<button class="btn-text danger" data-a="del">Delete</button>' +
+        '<div class="cell-media"><div class="cover" role="button" tabindex="0" title="Read"><img alt=""></div></div>' +
+        '<div>' +
+          '<div class="cell-caption"><span class="cell-title"></span><span class="cell-sub num">' + U.pad2(m.count) + ' p.</span></div>' +
+          '<div class="small num">' + U.pad2(date.getDate()) + '.' + U.pad2(date.getMonth() + 1) + '.' + date.getFullYear() + (m.searchable ? ' · searchable' : '') + '</div>' +
+          '<div class="cell-actions">' +
+            '<button data-a="read">Read</button>' +
+            '<button data-a="edit">Edit</button>' +
+            '<button data-a="dl">Download</button>' +
+            '<button data-a="del">Delete</button>' +
+          '</div>' +
         '</div>';
       c.querySelector('img').src = m.cover;
-      c.querySelector('h3').textContent = m.title;
+      c.querySelector('.cell-title').textContent = m.title;
+      c.querySelector('.cell-title').title = m.title;
       var cover = c.querySelector('.cover');
       cover.onclick = function () { bookAction('read', m); };
       cover.onkeydown = function (e) { if (e.key === 'Enter') bookAction('read', m); };
@@ -2216,8 +2222,8 @@ window.Studio = window.Studio || {};
   }
   function newCard() {
     var b = document.createElement('button');
-    b.type = 'button'; b.className = 'new-card'; b.id = 'newCard';
-    b.innerHTML = '<span class="plus">+</span><span class="kicker">New flipbook</span><span class="meta">from PDFs &amp; images</span>';
+    b.type = 'button'; b.className = 'cell cell-new'; b.id = 'newCard';
+    b.innerHTML = '<span class="plus">+</span><span><span class="cell-caption"><span class="cell-title">New flipbook</span><span class="cell-sub">→</span></span><span class="small">from PDFs &amp; images</span></span>';
     b.onclick = startNew;
     return b;
   }
@@ -2263,7 +2269,6 @@ window.Studio = window.Studio || {};
     }
     if (ok) { renderHome(); notify('Imported ' + ok + ' flipbook' + (ok === 1 ? '' : 's')); }
   }
-  $('bImport').onclick = function () { $('importInput').value = ''; $('importInput').click(); };
   $('importInput').onchange = function () { importToLibrary(Array.prototype.slice.call(this.files)); };
 
   $('resumeGo').onclick = function () { show('edit'); };

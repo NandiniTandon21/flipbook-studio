@@ -35,6 +35,10 @@ There's nothing to install and you don't need to be online. The same file works 
 - **More OCR languages.** Tesseract supports 100+ languages, but each language model adds about 2–15 MB. The plan is optional *language packs*: download a language file once, drop it into Studio, and it's kept offline in the Library storage. That way the app itself stays small.
 - **CJK PDF text.** Bundle pdf.js character maps (cMaps) so text extraction works for every Chinese, Japanese, and Korean PDF.
 
+## Design
+
+**Palette:** bone `#E9E2DA` (background), plum `#401F28` (the single ink: text, rules, active cells, reader background), pale cornflower `#BDD5E2` and powder blue `#B5C5D4` (cell fills, highlights), and chocolate `#3E2923` (deep panels). **Layout:** a ruled grid of 1px plum lines with alternating cornflower cells and equal-cell navigation bars. The app, the reader, exported flipbooks, and the website all share it.
+
 ## Typography
 
 Titles use **Advercase** if it's installed on your computer ([Indieground](https://indieground.net/product/advercase-font/); install the free personal version or a licence you own). Otherwise they use the bundled **EB Garamond**. Labels and controls use **IBM Plex Mono**. Advercase is never bundled into the app or your exported flipbooks, because it's a commercial font.

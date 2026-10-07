@@ -47,7 +47,7 @@
       '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
       '<meta name="generator" content="Flipbook Studio">\n' +
       '<title>' + U.escapeHtml(data.title) + '</title>\n' +
-      '<style>html,body{margin:0;height:100%;background:#2a211b}#flipbook{position:fixed;inset:0}</style>\n' +
+      '<style>html,body{margin:0;height:100%;background:#401F28}#flipbook{position:fixed;inset:0}</style>\n' +
       '<style>' + text('fonts-css') + '</style>\n' +
       '<style>' + text('viewer-css') + '</style>\n' +
       '</head><body><div id="flipbook"></div>\n' +

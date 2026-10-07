@@ -50,10 +50,11 @@ async function run(name) {
 
     // nav anchor
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.click('.nav-links a[href="#faq"]');
+    await page.click('.navcells a[href="#faq"]');
     await page.waitForTimeout(1200);
-    const faqTop = await page.evaluate(() => document.getElementById('faq').getBoundingClientRect().top);
-    check('nav link scrolls to section', Math.abs(faqTop) < 120, `faq top=${Math.round(faqTop)}`);
+    const pos = await page.evaluate(() => ({ top: document.getElementById('faq').getBoundingClientRect().top, header: document.querySelector('.header').offsetHeight }));
+    // the section should land just below the sticky header
+    check('nav link scrolls to section', pos.top >= pos.header - 4 && pos.top < pos.header + 40, `faq top=${Math.round(pos.top)}, header=${pos.header}`);
 
     await page.screenshot({ path: path.join(ART, `site-${name}-full.png`), fullPage: true });
     check('no outside requests (no trackers)', requests.length === 0, requests.slice(0, 3).join(' '));

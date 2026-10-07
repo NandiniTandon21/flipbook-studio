@@ -3,6 +3,7 @@
   Flipbook Studio — landing page (GitHub Pages).
   Source template: built by `python3 build.py` into docs/index.html.
   Self-contained: fonts + the real flipbook viewer are inlined; no trackers, no external requests.
+  Layout: the same ruled grid as the app (plum rules on bone, cornflower cells).
 -->
 <html lang="en">
 <head>
@@ -24,11 +25,14 @@
    ========================================================================== */
 
 .fb-root {
-  --fb-bg: #2a211b;          /* deep editorial brown */
-  --fb-ink: #efe7d8;         /* cream */
-  --fb-soft: rgba(239, 231, 216, .55);
-  --fb-rule: rgba(239, 231, 216, .16);
-  --fb-hit: rgba(255, 196, 0, .42);
+  --fb-bg: #401F28;          /* plum */
+  --fb-ink: #E9E2DA;         /* bone */
+  --fb-soft: rgba(233, 226, 218, .6);
+  --fb-rule: rgba(233, 226, 218, .22);
+  --fb-panel: #E9E2DA;       /* search panel: bone with plum ink */
+  --fb-panel-ink: #401F28;
+  --fb-accent: #BDD5E2;      /* pale cornflower */
+  --fb-hit: rgba(189, 213, 226, .65);
   --fb-sans: "IBM Plex Mono", ui-monospace, Menlo, monospace;                       /* labels + controls */
   --fb-serif: "FS Advercase", "EB Garamond", Garamond, "Times New Roman", serif;    /* titles; Advercase if installed */
 
@@ -53,7 +57,7 @@
 }
 .fb-leaf.is-flipped { transform: rotateY(-180deg); }
 .fb-face {
-  position: absolute; inset: 0; overflow: hidden; background: #f6f3ed;
+  position: absolute; inset: 0; overflow: hidden; background: #F4F0EA;
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
   box-shadow: 0 18px 50px rgba(0, 0, 0, .38);
 }
@@ -81,7 +85,7 @@
 }
 .fb-text span::selection { background: rgba(60, 120, 255, .32); color: transparent; }
 .fb-text span.fb-hit { background: var(--fb-hit); }
-.fb-text span.fb-hit-cur { background: rgba(255, 140, 0, .6); outline: 2px solid rgba(255, 120, 0, .9); }
+.fb-text span.fb-hit-cur { background: rgba(189, 213, 226, .85); outline: 2px solid #401F28; }
 
 /* ---- bottom bar --------------------------------------------------------- */
 .fb-bar {
@@ -110,20 +114,21 @@
 /* ---- search panel ------------------------------------------------------- */
 .fb-search {
   grid-column: 2; grid-row: 1; width: min(360px, 86vw); display: flex; flex-direction: column; min-height: 0;
-  background: #efe7d8; color: #1b1814; user-select: text; -webkit-user-select: text;
+  background: var(--fb-panel); color: var(--fb-panel-ink); user-select: text; -webkit-user-select: text;
+  border-left: 1px solid var(--fb-panel-ink);
 }
 .fb-search[hidden] { display: none; }
-.fb-s-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px 10px; border-bottom: 1px solid rgba(27,24,20,.18); }
+.fb-s-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px 10px; border-bottom: 1px solid var(--fb-panel-ink); }
 .fb-s-input { flex: 1; min-width: 0; border: 0; background: none; padding: 6px 0; font: 26px/1.1 var(--fb-serif); color: inherit; outline: none; }
 .fb-s-input:focus-visible { outline: none; }
-.fb-s-input::placeholder { color: rgba(27,24,20,.4); }
-.fb-search .fb-tb { color: #1b1814; }
-.fb-s-meta { padding: 10px 20px; font: 500 11px/1 var(--fb-sans); letter-spacing: .14em; text-transform: uppercase; color: rgba(27,24,20,.55); min-height: 31px; }
+.fb-s-input::placeholder { color: rgba(64,31,40,.4); }
+.fb-search .fb-tb { color: var(--fb-panel-ink); }
+.fb-s-meta { padding: 10px 20px; font: 500 11px/1 var(--fb-sans); letter-spacing: .14em; text-transform: uppercase; color: rgba(64,31,40,.7); min-height: 31px; }
 .fb-s-list { list-style: none; margin: 0; padding: 0 0 20px; overflow: auto; flex: 1; position: relative; }
-.fb-s-item { appearance: none; display: grid; grid-template-columns: 44px 1fr; gap: 10px; width: 100%; text-align: left; border: 0; background: none; padding: 12px 20px; cursor: pointer; color: inherit; border-top: 1px solid rgba(27,24,20,.09); font: 14px/1.4 var(--fb-sans); }
-.fb-s-item:hover, .is-cur > .fb-s-item { background: rgba(27,24,20,.06); }
-.fb-s-page { font: 500 10.5px/1.9 var(--fb-sans); letter-spacing: .12em; color: rgba(27,24,20,.55); }
-.fb-s-snip mark { background: #ffd56b; color: inherit; padding: 0 1px; }
+.fb-s-item { appearance: none; display: grid; grid-template-columns: 44px 1fr; gap: 10px; width: 100%; text-align: left; border: 0; background: none; padding: 12px 20px; cursor: pointer; color: inherit; border-top: 1px solid rgba(64,31,40,.2); font: 14px/1.4 var(--fb-serif); }
+.fb-s-item:hover, .is-cur > .fb-s-item { background: var(--fb-accent); }
+.fb-s-page { font: 500 10.5px/1.9 var(--fb-sans); letter-spacing: .12em; color: rgba(64,31,40,.7); }
+.fb-s-snip mark { background: var(--fb-accent); color: inherit; padding: 0 1px; outline: 1px solid var(--fb-panel-ink); }
 
 @media (max-width: 680px) {
   .fb-bar { grid-template-columns: 1fr auto; padding: 10px 14px; }
@@ -136,188 +141,200 @@
 </style>
 <style>/* ==========================================================================
    Flipbook Studio — landing page
-   Same system as the app: paper/ink, Advercase (if installed) → EB Garamond,
-   IBM Plex Mono for labels. Deep-brown stage for the live demo.
+   Same ruled-grid system as the app: plum ink + 1px plum rules on bone,
+   cornflower / powder cells, chocolate for the closing panel.
    ========================================================================== */
 :root {
-  --paper: #f2eee6;
-  --card: #fbf9f4;
-  --ink: #1a1714;
-  --soft: #6e675c;
-  --rule: rgba(26, 23, 20, .16);
-  --brown: #2a211b;
-  --cream: #efe7d8;
-  --accent: #c2371f;
+  --bone: #E9E2DA;
+  --plum: #401F28;
+  --cornflower: #BDD5E2;
+  --powder: #B5C5D4;
+  --chocolate: #3E2923;
+  --rule: 1px solid var(--plum);
   --display: "FS Advercase", "EB Garamond", Garamond, "Times New Roman", serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-  --gutter: clamp(18px, 4vw, 56px);
+  --pad: clamp(16px, 2vw, 28px);
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+html { scroll-behavior: smooth; scroll-padding-top: 120px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-body { margin: 0; background: var(--paper); color: var(--ink); font: 19px/1.55 var(--display); -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bone); color: var(--plum); font: 19px/1.55 var(--display); -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-code { font: .85em var(--mono); background: rgba(26,23,20,.07); padding: 1px 5px; }
+:focus-visible { outline: 2px solid var(--plum); outline-offset: -4px; }
+::selection { background: var(--cornflower); }
+code { font: .85em var(--mono); background: rgba(64,31,40,.08); padding: 1px 5px; }
 
-/* type */
 .display { font-family: var(--display); font-weight: 400; letter-spacing: -.025em; line-height: .95; margin: 0; }
 .display em { font-style: italic; }
-.kicker { font: 500 12px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin: 0; }
-.kicker.light, .meta.light { color: rgba(239, 231, 216, .65); }
-.lede { font-size: clamp(19px, 1.7vw, 23px); line-height: 1.45; margin: 0; max-width: 34ch; }
-.meta { font: 400 12.5px/1.5 var(--mono); color: var(--soft); }
+.label { font: 500 11.5px/1.35 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.small { font: 400 12.5px/1.5 var(--mono); }
+.lede { font-size: clamp(19px, 1.5vw, 22px); line-height: 1.45; margin: 0; max-width: 36ch; }
 
-/* buttons */
-.btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; border: 1px solid var(--ink); padding: 11px 18px; font: 500 12.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; transition: background .15s, color .15s; }
-.btn-primary { background: var(--ink); color: var(--paper); }
-.btn-primary:hover { background: #000; }
-.btn-light { background: var(--cream); color: var(--brown); border-color: var(--cream); }
-.btn-light:hover { background: #fff; }
-.btn-lg { padding: 17px 28px; font-size: 13.5px; }
+/* cell buttons */
+.cellbtn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; min-height: 52px; padding: 0 22px; font: 500 12.5px/1.2 var(--mono); letter-spacing: .04em; white-space: nowrap; border: var(--rule); transition: background .12s, color .12s; }
+.cellbtn-fill { background: var(--plum); color: var(--bone); }
+.cellbtn-fill:hover { background: var(--chocolate); }
+.cellbtn-light { background: var(--bone); color: var(--plum); border-color: var(--bone); }
+.cellbtn-light:hover { background: var(--cornflower); border-color: var(--cornflower); }
+.cellbtn-lg { min-height: 62px; padding: 0 30px; font-size: 13.5px; }
 
-/* nav */
-.nav { position: sticky; top: 0; z-index: 50; height: 64px; display: flex; align-items: center; gap: 28px; padding: 0 var(--gutter); background: var(--paper); border-bottom: 1px solid var(--ink); }
-.brand { font: 400 26px/1 var(--display); letter-spacing: -.02em; text-decoration: none; }
+/* header (same as app) */
+.header { position: sticky; top: 0; z-index: 50; background: var(--bone); border-bottom: var(--rule); }
+.header-top { display: flex; align-items: center; gap: 28px; padding: 12px var(--pad); border-bottom: var(--rule); }
+.brand { font: 400 34px/1 var(--display); letter-spacing: -.02em; text-decoration: none; }
 .brand em { font-style: italic; }
-.nav-links { margin-left: auto; display: flex; gap: 26px; }
-.nav-links a { font: 500 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; text-decoration: none; padding: 6px 0; border-bottom: 1px solid transparent; }
-.nav-links a:hover { border-bottom-color: var(--ink); }
+.header-info { margin: 0; font: 400 11.5px/1.35 var(--mono); }
+.header-link { margin-left: auto; font: 500 12px/1 var(--mono); text-underline-offset: 3px; }
+.navcells { display: grid; grid-template-columns: repeat(5, 1fr); }
+.navcell { display: grid; place-items: center; height: 46px; border-left: var(--rule); text-decoration: none; font: 400 21px/1 var(--display); letter-spacing: -.01em; transition: background .12s; }
+.navcell:first-child { border-left: 0; }
+.navcell:hover { background: var(--cornflower); }
+.navcell-fill { background: var(--plum); color: var(--bone); }
+.navcell-fill:hover { background: var(--chocolate); }
 
-/* hero */
-.hero { padding: clamp(36px, 6vh, 96px) var(--gutter) clamp(32px, 5vh, 64px); display: grid; gap: clamp(20px, 3vw, 36px); }
-.hero-title { font-size: clamp(56px, min(9.5vw, 15vh), 170px); }
-.hero-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 28px; border-top: 1px solid var(--ink); padding-top: 26px; }
+/* hero: two ruled cells */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); border-bottom: var(--rule); min-height: calc(100vh - 108px); }
+.hero-text { display: flex; flex-direction: column; justify-content: space-between; gap: 30px; padding: var(--pad); border-right: var(--rule); }
+.hero-title { font-size: clamp(58px, 7.4vw, 136px); }
 .hero-actions { display: grid; gap: 10px; justify-items: start; }
+.hero-demo { position: relative; background: var(--cornflower); display: flex; flex-direction: column; min-height: 520px; }
+.demo-label { padding: 14px var(--pad) 0; }
+.demo-stage { flex: 1; min-height: 0; }
+/* the viewer in plum-on-cornflower */
+.demo-stage .fb-root { background: transparent; --fb-ink: #401F28; --fb-soft: rgba(64,31,40,.7); --fb-rule: #401F28; }
+.demo-stage .fb-face { box-shadow: 0 18px 40px -16px rgba(64,31,40,.55); }
+.demo-stage .fb-title { visibility: hidden; }
 
-/* live demo */
-.demo { background: var(--brown); color: var(--cream); }
-.demo-label { padding: 18px var(--gutter) 0; }
-.demo-stage { height: min(78vh, 760px); min-height: 440px; }
-.demo-stage .fb-root { background: transparent; }
+/* generic two-cell row */
+.row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: var(--rule); }
+.cell-l { padding: var(--pad); border-right: var(--rule); display: flex; flex-direction: column; gap: 22px; }
+.cell-r { padding: var(--pad); }
+.why .cell-l { background: var(--powder); }
+.why-title { font-size: clamp(40px, 4.6vw, 76px); }
+.why-body p { margin: 0 0 1.05em; max-width: 48ch; }
+.why-body em { font-style: italic; text-decoration: underline; text-decoration-color: rgba(64,31,40,.4); text-underline-offset: 4px; }
+.why-body .sign { font: 500 13px/1.5 var(--mono); border-top: var(--rule); padding-top: 14px; margin-top: 26px; }
 
-/* sections */
-section.why, section.how, section.features, section.faq { padding: clamp(56px, 8vw, 120px) var(--gutter); border-bottom: 1px solid var(--rule); }
-section > .kicker { margin-bottom: 28px; }
+/* three-cell rows */
+.rowhead { padding: 12px var(--pad); border-bottom: var(--rule); }
+.cells3 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: var(--rule); }
+.cells3 > * { padding: var(--pad); border-right: var(--rule); min-height: 300px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+.cells3 > *:nth-child(3n) { border-right: 0; }
+.how li:nth-child(2) { background: var(--cornflower); }
+.big-no { font: 400 clamp(84px, 9vw, 150px)/.85 var(--display); letter-spacing: -.04em; }
+.how h3 { font: 400 32px/1.05 var(--display); margin: 0 0 10px; letter-spacing: -.01em; }
+.how p { margin: 0; max-width: 32ch; }
 
-.why-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: start; }
-.why-title { font-size: clamp(40px, 5vw, 76px); }
-.why-body p { margin: 0 0 1.1em; max-width: 46ch; }
-.why-body em { font-style: italic; color: var(--accent); }
-.why-body .sign { font: 500 13px/1.5 var(--mono); letter-spacing: .04em; color: var(--ink); border-top: 1px solid var(--ink); padding-top: 14px; margin-top: 28px; }
+.feature-cells > div { min-height: 240px; }
+.feature-cells > div:nth-child(n+4) { border-top: var(--rule); }
+.feature-cells > div:nth-child(1), .feature-cells > div:nth-child(3), .feature-cells > div:nth-child(5) { background: var(--cornflower); }
+.feature-cells dt { font: 400 clamp(28px, 2.6vw, 40px)/1.02 var(--display); letter-spacing: -.015em; }
+.feature-cells dd { margin: 0; font-size: 17.5px; max-width: 36ch; }
 
-.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
-.steps li { padding: 26px 28px 10px 0; }
-.steps li + li { border-left: 1px solid var(--rule); padding-left: 28px; }
-.step-no { font: 400 clamp(64px, 7vw, 110px)/1 var(--display); letter-spacing: -.03em; color: var(--accent); }
-.steps h3 { font: 400 32px/1.05 var(--display); margin: 14px 0 10px; letter-spacing: -.01em; }
-.steps p { margin: 0; color: var(--soft); max-width: 32ch; }
-
-.feature-list { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(28px, 5vw, 80px); }
-.feature-list > div { display: grid; grid-template-columns: minmax(150px, .8fr) 1.2fr; gap: 20px; padding: 22px 0; border-top: 1px solid var(--rule); }
-.feature-list dt { font: 400 26px/1.1 var(--display); letter-spacing: -.01em; }
-.feature-list dd { margin: 0; color: var(--soft); font-size: 17.5px; }
-
-.faq-list { border-top: 1px solid var(--ink); max-width: 980px; }
-.faq details { border-bottom: 1px solid var(--rule); }
-.faq summary { list-style: none; cursor: pointer; padding: 22px 40px 22px 0; position: relative; font: 400 clamp(22px, 2.4vw, 30px)/1.2 var(--display); letter-spacing: -.01em; }
+/* FAQ */
+.faq-title { font-size: clamp(40px, 4.6vw, 76px); }
+.faq-list { padding: 0; }
+.faq details { border-bottom: var(--rule); }
+.faq details:last-child { border-bottom: 0; }
+.faq summary { list-style: none; cursor: pointer; padding: 20px 56px 20px var(--pad); position: relative; font: 400 clamp(21px, 2vw, 27px)/1.2 var(--display); letter-spacing: -.01em; transition: background .12s; }
+.faq summary:hover { background: var(--cornflower); }
 .faq summary::-webkit-details-marker { display: none; }
-.faq summary::after { content: "+"; position: absolute; right: 4px; top: 18px; font: 400 30px/1 var(--mono); transition: transform .2s; }
+.faq summary::after { content: "+"; position: absolute; right: var(--pad); top: 16px; font: 400 28px/1 var(--mono); transition: transform .2s; }
+.faq details[open] summary { background: var(--cornflower); }
 .faq details[open] summary::after { transform: rotate(45deg); }
-.faq details p { margin: -6px 0 24px; max-width: 62ch; color: var(--soft); }
+.faq details p { margin: 0; padding: 14px var(--pad) 22px; max-width: 62ch; }
 
-.cta { background: var(--brown); color: var(--cream); padding: clamp(64px, 10vw, 150px) var(--gutter); display: grid; justify-items: start; gap: 30px; }
-.cta-title { font-size: clamp(56px, 10vw, 160px); }
+/* CTA + footer */
+.cta { background: var(--chocolate); color: var(--bone); padding: clamp(56px, 9vw, 130px) var(--pad); display: grid; gap: 34px; border-bottom: var(--rule); }
+.cta-title { font-size: clamp(56px, 9vw, 150px); }
+.cta-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; }
+.footer { display: grid; grid-template-columns: repeat(4, 1fr); font: 400 12px/1.4 var(--mono); }
+.footer > * { padding: 16px var(--pad); border-right: var(--rule); text-underline-offset: 3px; }
+.footer > *:last-child { border-right: 0; }
+.footer a:hover { background: var(--cornflower); }
 
-.footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 30px; padding: 22px var(--gutter); font: 400 12px/1.5 var(--mono); color: var(--soft); }
-.footer a { text-underline-offset: 3px; }
-
-@media (max-width: 900px) {
-  .nav-links { display: none; }
-  .nav-cta { margin-left: auto; }
-  .why-grid, .feature-list { grid-template-columns: 1fr; }
-  .steps { grid-template-columns: 1fr; }
-  .steps li + li { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); }
-  .feature-list > div { grid-template-columns: 1fr; gap: 6px; }
-  .demo-stage { height: 62vh; min-height: 360px; }
+@media (max-width: 960px) {
+  .hero, .row { grid-template-columns: 1fr; }
+  .hero-text, .cell-l { border-right: 0; border-bottom: var(--rule); }
+  .hero-demo { min-height: 70vh; }
+  .cells3 { grid-template-columns: 1fr; }
+  .cells3 > * { border-right: 0; border-bottom: var(--rule); min-height: 0; }
+  .feature-cells > div:nth-child(n+4) { border-top: 0; }
+  .navcells { grid-template-columns: repeat(2, 1fr); }
+  .navcell:nth-child(n+3) { border-top: var(--rule); }
+  .navcell:nth-child(odd) { border-left: 0; }
+  .navcell-fill { grid-column: 1 / -1; }
+  .header-info { display: none; }
+  .footer { grid-template-columns: 1fr 1fr; }
+  .footer > * { border-bottom: var(--rule); }
 }
 </style>
 </head>
 <body>
 
-<header class="nav">
-  <a class="brand" href="#top">Flipbook <em>Studio</em></a>
-  <nav class="nav-links" aria-label="Sections">
-    <a href="#why">Why</a>
-    <a href="#how">How it works</a>
-    <a href="#features">Features</a>
-    <a href="#faq">FAQ</a>
+<header class="header">
+  <div class="header-top">
+    <a class="brand" href="#top">Flipbook <em>Studio</em></a>
+    <p class="header-info">Free · offline · no sign-up<br><span data-version></span> · <span data-size></span></p>
+    <a class="header-link" href="https://github.com/NandiniTandon21/flipbook-studio">Source on GitHub ↗</a>
+  </div>
+  <nav class="navcells" aria-label="Sections">
+    <a class="navcell" href="#why">Why</a>
+    <a class="navcell" href="#how">How it works</a>
+    <a class="navcell" href="#features">Features</a>
+    <a class="navcell" href="#faq">FAQ</a>
+    <a class="navcell navcell-fill" data-download href="#">Download ↓</a>
   </nav>
-  <a class="btn btn-primary nav-cta" data-download href="#">Download</a>
 </header>
 
 <main id="top">
-  <!-- ───────── Hero ───────── -->
+  <!-- ───────── Hero: headline cell | live flipbook cell ───────── -->
   <section class="hero">
-    <p class="kicker">Free · Offline · No sign-up · <span data-version></span></p>
-    <h1 class="display hero-title">Make flipbook<br>magazines. <em>Keep them.</em></h1>
-    <div class="hero-foot">
+    <div class="hero-text">
+      <span class="label">Issue Nº 01 — a free flipbook maker</span>
+      <h1 class="display hero-title">Make flipbook magazines. <em>Keep them.</em></h1>
       <p class="lede">Turn PDFs and images into magazines that turn pages, then download the flipbook itself. No account, no paywall, no watermark, and nothing ever leaves your computer.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary btn-lg" data-download href="#">Download Flipbook Studio ↓</a>
-        <span class="meta">One file · <span data-size></span> · Mac, Windows, Linux</span>
+        <a class="cellbtn cellbtn-fill cellbtn-lg" data-download href="#">Download Flipbook Studio ↓</a>
+        <span class="small">One file · <span data-size></span> · Mac, Windows, Linux</span>
       </div>
+    </div>
+    <div class="hero-demo">
+      <span class="label demo-label">↓ A real flipbook. Click, swipe or use ← →</span>
+      <div class="demo-stage" id="demo"></div>
     </div>
   </section>
 
-  <!-- ───────── Live demo: this is the real viewer ───────── -->
-  <section class="demo" aria-label="Try it: a flipbook you can turn">
-    <div class="demo-label"><span class="kicker light">↓ This is a real flipbook. Click, swipe or use ← → to turn the pages.</span></div>
-    <div class="demo-stage" id="demo"></div>
-  </section>
-
   <!-- ───────── Why ───────── -->
-  <section class="why" id="why">
-    <p class="kicker">01 — Why this exists</p>
-    <div class="why-grid">
+  <section class="row why" id="why">
+    <div class="cell-l">
+      <span class="label">01 — Why this exists</span>
       <h2 class="display why-title">Try finding a free flipbook maker that just… lets you have your flipbook.</h2>
-      <div class="why-body">
-        <p>I wanted to turn a few PDFs into a magazine that flips. Simple enough. Except every “free” flipbook maker I found wanted something first: <em>sign up</em>, <em>start a trial</em>, <em>upgrade to remove the watermark</em>, <em>pay to download</em>. Most wouldn’t let you download the flipbook at all. It lives on their site, behind their login, for as long as they feel like hosting it.</p>
-        <p>I couldn’t find a single one that was free, didn’t make me sign up, and let me keep the result. So I made it myself.</p>
-        <p>Flipbook Studio is one file you download and open. It runs entirely on your computer and never uploads anything. The flipbook you make is yours: a single file you can keep, send, or open years from now without anyone’s permission.</p>
-        <p class="sign">Made for me, and for anyone else who’s been on the same hunt.</p>
-      </div>
+    </div>
+    <div class="cell-r why-body">
+      <p>I wanted to turn a few PDFs into a magazine that flips. Simple enough. Except every “free” flipbook maker I found wanted something first: <em>sign up</em>, <em>start a trial</em>, <em>upgrade to remove the watermark</em>, <em>pay to download</em>. Most wouldn’t let you download the flipbook at all. It lives on their site, behind their login, for as long as they feel like hosting it.</p>
+      <p>I couldn’t find a single one that was free, didn’t make me sign up, and let me keep the result. So I made it myself.</p>
+      <p>Flipbook Studio is one file you download and open. It runs entirely on your computer and never uploads anything. The flipbook you make is yours: a single file you can keep, send, or open years from now without anyone’s permission.</p>
+      <p class="sign">Made for me, and for anyone else who’s been on the same hunt.</p>
     </div>
   </section>
 
   <!-- ───────── How ───────── -->
   <section class="how" id="how">
-    <p class="kicker">02 — How it works</p>
-    <ol class="steps">
-      <li>
-        <span class="step-no">01</span>
-        <h3>Download &amp; open</h3>
-        <p>Download one file and double-click it. It opens in your browser and works offline. Nothing to install, no account.</p>
-      </li>
-      <li>
-        <span class="step-no">02</span>
-        <h3>Add &amp; arrange</h3>
-        <p>Drop in PDFs and images. Every PDF page becomes a magazine page. Drag them into order: the cover first, then spreads.</p>
-      </li>
-      <li>
-        <span class="step-no">03</span>
-        <h3>Read, save, download</h3>
-        <p>Flip through it, save it to your shelf, and download the flipbook: one file that opens in any browser, anywhere.</p>
-      </li>
+    <div class="rowhead"><span class="label">02 — How it works</span></div>
+    <ol class="cells3">
+      <li><span class="big-no">01</span><div><h3>Download &amp; open</h3><p>Download one file and double-click it. It opens in your browser and works offline. Nothing to install, no account.</p></div></li>
+      <li><span class="big-no">02</span><div><h3>Add &amp; arrange</h3><p>Drop in PDFs and images. Every PDF page becomes a magazine page. Drag them into order: the cover first, then spreads.</p></div></li>
+      <li><span class="big-no">03</span><div><h3>Read, save, download</h3><p>Flip through it, save it to your shelf, and download the flipbook: one file that opens in any browser, anywhere.</p></div></li>
     </ol>
   </section>
 
   <!-- ───────── Features ───────── -->
   <section class="features" id="features">
-    <p class="kicker">03 — What you get</p>
-    <dl class="feature-list">
+    <div class="rowhead"><span class="label">03 — What you get</span></div>
+    <dl class="cells3 feature-cells">
       <div><dt>Real page turns</dt><dd>Two-page spreads with a horizontal 3D page flip. Click, swipe, use the arrow keys, or go full screen.</dd></div>
-      <div><dt>A flipbook you can keep</dt><dd>Download it as one <code>.html</code> file that opens offline in any browser. Share it, archive it, or drop it back in to edit.</dd></div>
+      <div><dt>A flipbook you keep</dt><dd>Download it as one <code>.html</code> file that opens offline in any browser. Share it, archive it, or drop it back in to edit.</dd></div>
       <div><dt>Searchable text</dt><dd>Text inside PDFs stays selectable and searchable. Text in images and scans is read offline (English, for now).</dd></div>
       <div><dt>PDFs, photos, HEIC</dt><dd>PDF, JPG, PNG, WebP, and iPhone HEIC photos, in every browser.</dd></div>
       <div><dt>Your shelf</dt><dd>Save flipbooks in your browser to read, edit, or download later. Unsaved work is never lost silently.</dd></div>
@@ -326,13 +343,16 @@ section > .kicker { margin-bottom: 28px; }
   </section>
 
   <!-- ───────── FAQ ───────── -->
-  <section class="faq" id="faq">
-    <p class="kicker">04 — Questions</p>
-    <div class="faq-list">
+  <section class="row faq" id="faq">
+    <div class="cell-l">
+      <span class="label">04 — Questions</span>
+      <h2 class="display faq-title">Things people ask.</h2>
+    </div>
+    <div class="cell-r faq-list">
       <details><summary>Is it actually free?</summary><p>Yes. No trial, no premium tier, no watermark. The code is open source under the MIT licence.</p></details>
       <details><summary>Do my files get uploaded anywhere?</summary><p>No. Everything happens inside your browser on your computer. The app carries a browser security policy that blocks every network request, so it couldn’t upload even if it tried.</p></details>
       <details><summary>Do I need the internet?</summary><p>Only to download it once. After that it works fully offline, and so do the flipbooks you make.</p></details>
-      <details><summary>What exactly do I get when I download a flipbook?</summary><p>A single <code>.html</code> file containing your pages and the page-turning reader. Double-click it and it opens in any modern browser, on any computer, with nothing else needed.</p></details>
+      <details><summary>What do I get when I download a flipbook?</summary><p>A single <code>.html</code> file containing your pages and the page-turning reader. Double-click it and it opens in any modern browser, on any computer, with nothing else needed.</p></details>
       <details><summary>Which browsers and computers?</summary><p>Chrome, Edge, Safari, and Firefox on Mac, Windows, and Linux. Every release is tested in all three browser engines.</p></details>
       <details><summary>Can it read text in other languages?</summary><p>Text already inside a PDF works in any language. Reading text <em>from images</em> (OCR) is English-only for now. More languages are on the roadmap.</p></details>
       <details><summary>Where are my saved flipbooks stored?</summary><p>In your browser’s storage on that computer. The files you download are your permanent copies, so keep those somewhere safe.</p></details>
@@ -341,21 +361,25 @@ section > .kicker { margin-bottom: 28px; }
 
   <!-- ───────── Final CTA ───────── -->
   <section class="cta">
-    <h2 class="display cta-title">Make one now.<br><em>Keep it forever.</em></h2>
-    <a class="btn btn-light btn-lg" data-download href="#">Download Flipbook Studio ↓</a>
-    <p class="meta light">Free · <span data-version></span> · <span data-size></span> · no account</p>
+    <h2 class="display cta-title">Make one now. <em>Keep it forever.</em></h2>
+    <div class="cta-actions">
+      <a class="cellbtn cellbtn-light cellbtn-lg" data-download href="#">Download Flipbook Studio ↓</a>
+      <span class="small">Free · <span data-version></span> · <span data-size></span> · no account</span>
+    </div>
   </section>
 </main>
 
 <footer class="footer">
-  <span>Flipbook Studio — open source, MIT licence.</span>
-  <span><a href="https://github.com/NandiniTandon21/flipbook-studio">Source on GitHub</a> · <a href="https://github.com/NandiniTandon21/flipbook-studio/blob/main/CHANGELOG.md">Changelog</a> · No cookies, no tracking.</span>
+  <span>Flipbook Studio — open source, MIT licence</span>
+  <a href="https://github.com/NandiniTandon21/flipbook-studio">Source on GitHub</a>
+  <a href="https://github.com/NandiniTandon21/flipbook-studio/blob/main/CHANGELOG.md">Changelog</a>
+  <span>No cookies, no tracking</span>
 </footer>
 
 <script>
   // Filled in by build.py
   window.SITE = {
-    version: "2.2.0",
+    version: "2.3.0",
     size: "11 MB",
     download: "https://github.com/NandiniTandon21/flipbook-studio/releases/latest/download/Flipbook-Studio.html"
   };
@@ -798,7 +822,9 @@ section > .kicker { margin-bottom: 28px; }
 
   // ---- demo pages
   var W = 1200, H = 1600;
-  var C = { paper: '#f2eee6', ink: '#1a1714', soft: '#6e675c', brown: '#2a211b', cream: '#efe7d8', red: '#c2371f', sage: '#c9ccc3', slate: '#4f6a85' };
+  // palette: bone, plum, chocolate, pale cornflower, powder
+  var C = { bone: '#E9E2DA', plum: '#401F28', chocolate: '#3E2923', cornflower: '#BDD5E2', powder: '#B5C5D4',
+            plumSoft: 'rgba(64,31,40,.72)', boneSoft: 'rgba(233,226,218,.72)' };
   var SERIF = '"FS Advercase", "EB Garamond", Garamond, serif';
   var MONO = '"IBM Plex Mono", Menlo, monospace';
 
@@ -842,38 +868,38 @@ section > .kicker { margin-bottom: 28px; }
   function buildPages() {
     return [
       // 1 — front cover
-      page(C.brown, function (x) {
-        mono(x, 'ISSUE Nº 01', 90, 130, C.cream);
-        mono(x, 'FREE · OFFLINE · NO SIGN-UP', W - 90, 130, C.cream, 'right');
-        rule(x, 170, 'rgba(239,231,216,.35)');
-        x.fillStyle = C.cream;
+      page(C.plum, function (x) {
+        mono(x, 'ISSUE Nº 01', 90, 130, C.bone);
+        mono(x, 'FREE · OFFLINE · NO SIGN-UP', W - 90, 130, C.bone, 'right');
+        rule(x, 170, C.boneSoft);
+        x.fillStyle = C.bone;
         x.font = '400 330px ' + SERIF; x.fillText('Flipbook', 70, 760);
         x.font = 'italic 400 330px ' + SERIF; x.fillText('Studio', 70, 1060);
         x.font = '400 64px ' + SERIF; wrap(x, 'PDFs & images, turned into magazines you can keep.', 90, 1260, W - 260, 78);
-        mono(x, 'CLICK OR SWIPE TO TURN →', 90, 1510, 'rgba(239,231,216,.65)');
+        mono(x, 'CLICK OR SWIPE TO TURN →', 90, 1510, C.boneSoft);
       }),
       // 2 — why
-      page(C.paper, function (x) {
-        mono(x, 'WHY IT EXISTS', 90, 130, C.soft);
-        rule(x, 170, C.ink);
-        x.fillStyle = C.ink; x.font = '400 112px ' + SERIF;
+      page(C.bone, function (x) {
+        mono(x, 'WHY IT EXISTS', 90, 130, C.plumSoft);
+        rule(x, 170, C.plum);
+        x.fillStyle = C.plum; x.font = '400 112px ' + SERIF;
         var y = wrap(x, 'No sign-up. No paywall. No watermark.', 90, 380, W - 180, 112);
-        x.fillStyle = C.red; x.font = 'italic 400 112px ' + SERIF;
+        x.fillStyle = C.chocolate; x.font = 'italic 400 112px ' + SERIF;
         y = wrap(x, 'Just your flipbook.', 90, y + 20, W - 180, 112);
-        x.fillStyle = C.soft; x.font = '400 50px ' + SERIF;
+        x.fillStyle = C.plumSoft; x.font = '400 50px ' + SERIF;
         wrap(x, 'Every “free” flipbook maker wanted an account, a payment, or wouldn’t let me download the result. So I made one that doesn’t.', 90, y + 120, W - 220, 70);
       }),
       // 3–5 — how
-      stepPage(C.red, C.cream, 'rgba(239,231,216,.8)', '01', 'Drop in PDFs & images.', 'Every PDF page becomes a magazine page. iPhone HEIC photos work too.', 'HOW IT WORKS'),
-      stepPage(C.sage, C.slate, C.slate, '02', 'Arrange the spreads.', 'Drag pages into order. The cover sits alone, then pages open in pairs, like a real magazine.', 'HOW IT WORKS'),
-      stepPage(C.paper, C.ink, C.soft, '03', 'Read it. Keep it.', 'Download the flipbook as one file that opens offline in any browser, forever.', 'HOW IT WORKS'),
+      stepPage(C.chocolate, C.bone, C.boneSoft, '01', 'Drop in PDFs & images.', 'Every PDF page becomes a magazine page. iPhone HEIC photos work too.', 'HOW IT WORKS'),
+      stepPage(C.powder, C.plum, C.plumSoft, '02', 'Arrange the spreads.', 'Drag pages into order. The cover sits alone, then pages open in pairs, like a real magazine.', 'HOW IT WORKS'),
+      stepPage(C.bone, C.plum, C.plumSoft, '03', 'Read it. Keep it.', 'Download the flipbook as one file that opens offline in any browser, forever.', 'HOW IT WORKS'),
       // 6 — back cover
-      page(C.ink, function (x) {
-        x.fillStyle = C.cream; x.font = '400 150px ' + SERIF;
+      page(C.plum, function (x) {
+        x.fillStyle = C.bone; x.font = '400 150px ' + SERIF;
         var y = wrap(x, 'Nothing you add is ever uploaded.', 90, 520, W - 180, 150);
-        x.fillStyle = 'rgba(239,231,216,.65)'; x.font = '400 52px ' + SERIF;
+        x.fillStyle = C.boneSoft; x.font = '400 52px ' + SERIF;
         wrap(x, 'It runs on your computer. No account, ever.', 90, y + 60, W - 220, 72);
-        mono(x, 'FLIPBOOK STUDIO — MIT LICENCE', 90, 1510, 'rgba(239,231,216,.65)');
+        mono(x, 'FLIPBOOK STUDIO — MIT LICENCE', 90, 1510, C.boneSoft);
       })
     ];
   }

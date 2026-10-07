@@ -2,6 +2,20 @@
 
 Every feature or fix gets an entry here, in the same commit. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 2.3.0
+
+**New palette.** Bone `#E9E2DA`, plum `#401F28`, pale cornflower `#BDD5E2`, powder blue `#B5C5D4`, and chocolate `#3E2923` replace the old paper/ink/red scheme across the app, the reader, exported flipbooks, and the website.
+- Plum is the single ink: all text, rules, the active navigation cell, and the reader's background.
+- Cornflower and powder are cell fills and highlights. Search matches now highlight in cornflower with a plum outline.
+- Chocolate is used for deep panels (the closing download section, error status).
+
+**New layout: a ruled grid** (inspired by Readellion, Utrecht, and Anykey / Nothing International)
+- Header: a brand row, then a full-width navigation bar of equal cells with the active cell filled plum. In the app: My flipbooks · + New flipbook · Import a flipbook file. On the website: Why · How it works · Features · FAQ · Download.
+- Home: a ruled shelf of cells with alternating cornflower fills. Each cell has the cover, then a caption with the title on the left and page count on the right, then the date and Read / Edit / Download / Delete. "New flipbook" is the first cell, filled plum. Unsaved work appears as a powder strip with Continue editing / Discard.
+- Editor: the bar, steps, and tools are all ruled cells. Every spread is its own cell, with its label and page numbers in the caption.
+- Website: the hero is split into a headline cell and a live flipbook on cornflower. Why and FAQ are two-cell rows, How and Features are rows of three cells, the closing download panel is chocolate, and the footer is ruled cells.
+- The demo magazine pages are redrawn in the new palette.
+
 ## 2.2.0
 
 **Website**

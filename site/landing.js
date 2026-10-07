@@ -15,7 +15,9 @@
 
   // ---- demo pages
   var W = 1200, H = 1600;
-  var C = { paper: '#f2eee6', ink: '#1a1714', soft: '#6e675c', brown: '#2a211b', cream: '#efe7d8', red: '#c2371f', sage: '#c9ccc3', slate: '#4f6a85' };
+  // palette: bone, plum, chocolate, pale cornflower, powder
+  var C = { bone: '#E9E2DA', plum: '#401F28', chocolate: '#3E2923', cornflower: '#BDD5E2', powder: '#B5C5D4',
+            plumSoft: 'rgba(64,31,40,.72)', boneSoft: 'rgba(233,226,218,.72)' };
   var SERIF = '"FS Advercase", "EB Garamond", Garamond, serif';
   var MONO = '"IBM Plex Mono", Menlo, monospace';
 
@@ -59,38 +61,38 @@
   function buildPages() {
     return [
       // 1 — front cover
-      page(C.brown, function (x) {
-        mono(x, 'ISSUE Nº 01', 90, 130, C.cream);
-        mono(x, 'FREE · OFFLINE · NO SIGN-UP', W - 90, 130, C.cream, 'right');
-        rule(x, 170, 'rgba(239,231,216,.35)');
-        x.fillStyle = C.cream;
+      page(C.plum, function (x) {
+        mono(x, 'ISSUE Nº 01', 90, 130, C.bone);
+        mono(x, 'FREE · OFFLINE · NO SIGN-UP', W - 90, 130, C.bone, 'right');
+        rule(x, 170, C.boneSoft);
+        x.fillStyle = C.bone;
         x.font = '400 330px ' + SERIF; x.fillText('Flipbook', 70, 760);
         x.font = 'italic 400 330px ' + SERIF; x.fillText('Studio', 70, 1060);
         x.font = '400 64px ' + SERIF; wrap(x, 'PDFs & images, turned into magazines you can keep.', 90, 1260, W - 260, 78);
-        mono(x, 'CLICK OR SWIPE TO TURN →', 90, 1510, 'rgba(239,231,216,.65)');
+        mono(x, 'CLICK OR SWIPE TO TURN →', 90, 1510, C.boneSoft);
       }),
       // 2 — why
-      page(C.paper, function (x) {
-        mono(x, 'WHY IT EXISTS', 90, 130, C.soft);
-        rule(x, 170, C.ink);
-        x.fillStyle = C.ink; x.font = '400 112px ' + SERIF;
+      page(C.bone, function (x) {
+        mono(x, 'WHY IT EXISTS', 90, 130, C.plumSoft);
+        rule(x, 170, C.plum);
+        x.fillStyle = C.plum; x.font = '400 112px ' + SERIF;
         var y = wrap(x, 'No sign-up. No paywall. No watermark.', 90, 380, W - 180, 112);
-        x.fillStyle = C.red; x.font = 'italic 400 112px ' + SERIF;
+        x.fillStyle = C.chocolate; x.font = 'italic 400 112px ' + SERIF;
         y = wrap(x, 'Just your flipbook.', 90, y + 20, W - 180, 112);
-        x.fillStyle = C.soft; x.font = '400 50px ' + SERIF;
+        x.fillStyle = C.plumSoft; x.font = '400 50px ' + SERIF;
         wrap(x, 'Every “free” flipbook maker wanted an account, a payment, or wouldn’t let me download the result. So I made one that doesn’t.', 90, y + 120, W - 220, 70);
       }),
       // 3–5 — how
-      stepPage(C.red, C.cream, 'rgba(239,231,216,.8)', '01', 'Drop in PDFs & images.', 'Every PDF page becomes a magazine page. iPhone HEIC photos work too.', 'HOW IT WORKS'),
-      stepPage(C.sage, C.slate, C.slate, '02', 'Arrange the spreads.', 'Drag pages into order. The cover sits alone, then pages open in pairs, like a real magazine.', 'HOW IT WORKS'),
-      stepPage(C.paper, C.ink, C.soft, '03', 'Read it. Keep it.', 'Download the flipbook as one file that opens offline in any browser, forever.', 'HOW IT WORKS'),
+      stepPage(C.chocolate, C.bone, C.boneSoft, '01', 'Drop in PDFs & images.', 'Every PDF page becomes a magazine page. iPhone HEIC photos work too.', 'HOW IT WORKS'),
+      stepPage(C.powder, C.plum, C.plumSoft, '02', 'Arrange the spreads.', 'Drag pages into order. The cover sits alone, then pages open in pairs, like a real magazine.', 'HOW IT WORKS'),
+      stepPage(C.bone, C.plum, C.plumSoft, '03', 'Read it. Keep it.', 'Download the flipbook as one file that opens offline in any browser, forever.', 'HOW IT WORKS'),
       // 6 — back cover
-      page(C.ink, function (x) {
-        x.fillStyle = C.cream; x.font = '400 150px ' + SERIF;
+      page(C.plum, function (x) {
+        x.fillStyle = C.bone; x.font = '400 150px ' + SERIF;
         var y = wrap(x, 'Nothing you add is ever uploaded.', 90, 520, W - 180, 150);
-        x.fillStyle = 'rgba(239,231,216,.65)'; x.font = '400 52px ' + SERIF;
+        x.fillStyle = C.boneSoft; x.font = '400 52px ' + SERIF;
         wrap(x, 'It runs on your computer. No account, ever.', 90, y + 60, W - 220, 72);
-        mono(x, 'FLIPBOOK STUDIO — MIT LICENCE', 90, 1510, 'rgba(239,231,216,.65)');
+        mono(x, 'FLIPBOOK STUDIO — MIT LICENCE', 90, 1510, C.boneSoft);
       })
     ];
   }
