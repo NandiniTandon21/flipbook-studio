@@ -22,7 +22,7 @@ There's nothing to install and you don't need to be online. The same file works 
 | **Searchable text** | PDF text is kept along with where it sits on the page. Text in images and scanned pages is read by built-in **OCR**. |
 | **Navigate** | Opens on **My flipbooks**. Use **+ New flipbook** to start, **Continue editing** to pick up unsaved work, and **Edit** to change a saved one. In the editor, one bar has **Preview · Save · Download** and shows a live save status. |
 | **Arrange** | Pages are laid out the way the magazine opens: the cover, then spreads. Drag to reorder, or use the ← → buttons. You can also add blank pages, reverse the order, or sort A–Z. |
-| **Read** | Two-page spreads with a 3D page turn. Click, swipe, use the arrow keys or the slider, or go full screen. **Search** (⌘/Ctrl-F) jumps to each match and highlights it. You can select and copy text. |
+| **Read** | Two-page spreads with a 3D page turn. Click, drag, two-finger trackpad swipe, arrow keys, or the slider, plus full screen. **Select text** mode lets you copy text. **Search** (⌘/Ctrl-F) jumps to each match and highlights it. You can select and copy text. |
 | **Library** | Saves your flipbooks in this browser so you can read, edit, download, or delete them. Your work in progress autosaves. |
 | **Download** | Creates one `.html` flipbook that opens offline in any browser and can still be searched. Drop it back into Studio to edit it. |
 

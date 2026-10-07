@@ -176,10 +176,15 @@ button, input, select { font: inherit; color: inherit; }
 
 /* ---- overlays ------------------------------------------------------------- */
 .viewer { position: fixed; inset: 0; z-index: 100; }
+/* status toast: bottom centre, large enough to notice */
 .status {
-  position: fixed; right: var(--gap); bottom: 24px; z-index: 200; display: flex; gap: 18px; max-width: min(560px, calc(100vw - 40px));
-  padding: 12px 16px; background: var(--ink); color: var(--bone); font: 400 12.5px/1.4 var(--mono); overflow: hidden;
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 200; display: flex; gap: 18px; align-items: baseline;
+  width: max-content; max-width: min(640px, calc(100vw - 32px)); padding: 15px 22px;
+  background: var(--ink); color: var(--bone); font: 400 17px/1.35 var(--display);
+  box-shadow: 0 18px 40px -16px rgba(64, 31, 40, .6); overflow: hidden; animation: status-in .25s ease-out;
 }
+.status .num { font: 400 13px/1 var(--mono); opacity: .8; }
+@keyframes status-in { from { opacity: 0; transform: translate(-50%, 10px); } }
 .status.is-error { background: var(--chocolate); }
 .status-line { position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: var(--bg); transition: width .2s; }
 

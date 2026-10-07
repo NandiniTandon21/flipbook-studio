@@ -104,6 +104,31 @@ async function run(name) {
     check('spread 02—03 shows the right pages (not mirrored backs)', near(c23.left, PAGE_RGB[2]) && near(c23.right, PAGE_RGB[3]), JSON.stringify(c23));
     const spans = await page.evaluate(() => document.querySelectorAll('.fb-text span').length);
     check('selectable text layer rendered', spans > 0, `${spans} spans`);
+
+    // turning by hand — drag across a page that has text on it, then a trackpad swipe
+    const box = await page.evaluate(() => { const b = document.querySelector('.fb-book').getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; });
+    const sx = box.x + box.w * 0.75, sy = box.y + box.h * 0.12;            // over the page's printed title
+    await page.mouse.move(sx, sy); await page.mouse.down(); await page.mouse.move(sx - 160, sy, { steps: 8 }); await page.mouse.up();
+    await page.waitForTimeout(1200);
+    check('drag/swipe turns the page (even over text)', (await page.textContent('.fb-count')) === '04—05 / 09', await page.textContent('.fb-count'));
+    await page.mouse.move(box.x + box.w / 2, box.y + box.h / 2);
+    for (let i = 0; i < 6; i++) await page.mouse.wheel(-30, 0);              // two-finger swipe back
+    await page.waitForTimeout(1200);
+    check('trackpad swipe turns the page', (await page.textContent('.fb-count')) === '02—03 / 09', await page.textContent('.fb-count'));
+
+    // "Select text" mode: dragging selects text and does NOT turn the page
+    await page.click('.fb-actions .fb-tb >> text=Select text');
+    // drag across the visible right page's title text
+    const t = await page.evaluate(() => {
+      const spans = [...document.querySelectorAll('.fb-text span')].map((s) => ({ s, r: s.getBoundingClientRect() }))
+        .filter(({ s, r }) => r.width > 40 && /page 3/.test(s.textContent));
+      const r = spans[0].r; return { x1: r.left + 2, x2: r.right - 2, y: r.top + r.height / 2 };
+    });
+    await page.mouse.move(t.x1, t.y); await page.mouse.down(); await page.mouse.move(t.x2, t.y, { steps: 10 }); await page.mouse.up();
+    await page.waitForTimeout(800);
+    const sel = await page.evaluate(() => String(getSelection()));
+    check('Select text mode: selects text, no page turn', sel.length > 3 && (await page.textContent('.fb-count')) === '02—03 / 09', `selected "${sel.slice(0, 30)}"`);
+    await page.click('.fb-actions .fb-tb >> text=Done selecting');
     await page.click('.fb-actions .fb-tb >> text=Search');
     await page.fill('.fb-s-input', 'page 5');
     await page.press('.fb-s-input', 'Enter');
@@ -120,6 +145,8 @@ async function run(name) {
     await page.click('#bSave');
     await page.waitForFunction(() => /Saved|Couldn|blocks/.test(document.getElementById('statusText').textContent), null, { timeout: 30000 });
     const saveMsg = await page.textContent('#statusText');
+    const toast = await page.evaluate(() => { const s = document.getElementById('status'); const r = s.getBoundingClientRect(); return !s.hidden && r.height > 30 && r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth; });
+    check('save shows a visible confirmation', toast && /✓ Saved/.test(saveMsg), saveMsg);
     check('save state shows "Saved ✓"', (await page.textContent('#saveState')) === 'Saved ✓', await page.textContent('#saveState'));
     await page.reload();
     await page.waitForFunction(() => window.Studio && window.Studio.app);
@@ -133,11 +160,12 @@ async function run(name) {
     check('Edit opens the saved flipbook', await page.isVisible('#view-edit') && (await page.inputValue('#title')) === 'sample');
 
     // ---- download the flipbook file
-    await page.evaluate(() => { window.showSaveFilePicker = undefined; });
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('#bDownload')]);
     const exported = path.join(ART, `${name}-export.html`);
     await download.saveAs(exported);
     check('download flipbook file', fs.statSync(exported).size > 100000, `${(fs.statSync(exported).size / 1e6).toFixed(2)} MB`);
+    await page.waitForFunction(() => /Downloaded/.test(document.getElementById('statusText').textContent), null, { timeout: 5000 }).catch(() => {});
+    check('download shows a confirmation', /✓ Downloaded/.test(await page.textContent('#statusText')), await page.textContent('#statusText'));
 
     // ---- open the downloaded flipbook on its own, search inside it
     const fb = await context.newPage();

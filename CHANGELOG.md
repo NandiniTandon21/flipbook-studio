@@ -2,6 +2,16 @@
 
 Every feature or fix gets an entry here, in the same commit. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 2.4.2
+
+**Fixes**
+- **Download did nothing.** Chrome rejects the "Save as…" file picker for pages opened from a file, with an error that looks like the user cancelled, so the download silently stopped. Downloads are now always a normal browser download (to your Downloads folder), followed by a "✓ Downloaded … check your Downloads folder" message.
+- **Swipe to turn pages.** Two-finger **trackpad swipes** now turn pages; before, only click, drag, and the arrow keys did. Dragging over text no longer starts a text selection instead of turning the page.
+- **Selecting text** is now an explicit **Select text** mode in the reader's bar (and in downloaded flipbooks). While it's on, you can select and copy text and swiping pauses. Choose **Done selecting** to go back.
+- **Save messages** are now bigger, at the bottom centre, with a ✓, and stay up for 5 seconds. Before, they were small, in the corner, and gone in 3 seconds.
+
+**Tests:** added checks for downloading with no workaround, drag-swipe over text, trackpad swipe, Select text mode, and the save message being visible on screen.
+
 ## 2.4.1
 
 - **Readable left margin.** The vertical text in the left column is now horizontal *margin notes*, like a newspaper sidebar: short serif paragraphs with a bold lead-in (*Offline. / Private. / Yours.* in the app; *Free. / Offline. / Open source.* on the website), divided by hairlines. Same treatment in the app and the website.

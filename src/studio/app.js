@@ -372,7 +372,7 @@
   async function download(data) {
     progress('Preparing ' + data.title, null);
     var saved = await ex.saveFile(ex.fileName(data.title), ex.buildHtml(data));
-    if (saved) notify('Saved ' + saved); else $('status').hidden = true;
+    notify('✓ Downloaded “' + saved + '” — check your Downloads folder', false, 6000);
   }
 
   async function saveToLibrary() {
@@ -386,7 +386,7 @@
       state.editingId = id; state.dirty = false;
       await writeDraft();          // immediately, so a reload right after saving can't resurrect "unsaved"
       renderEditor(); refreshCount();
-      notify((prev ? 'Updated “' : 'Saved “') + data.title + '” in My flipbooks');
+      notify('✓ ' + (prev ? 'Updated “' : 'Saved “') + data.title + '” in My flipbooks', false, 5000);
     } catch (e) {
       notify(store.available ? 'Couldn’t save — browser storage may be full' : 'This browser blocks storage here — use Download to keep your flipbook', true, 7000);
     }

@@ -1,5 +1,7 @@
 /* Flipbook viewer — shared by Flipbook Studio and every exported flipbook.
    FlipBook.mount(container, data, {onClose, startPage, embedded})
+     Turning: click a page half, drag/swipe, two-finger trackpad swipe, arrow keys, slider.
+     Text: invisible but searchable; "Select text" mode makes it selectable/copyable.
      embedded: true when the book sits inside a longer page (e.g. the landing page):
                no autofocus, and keys only work while the book has focus.
    data = {title, aspect, pages:[imgSrc], ratios:[w/h], text:[[ [str,x,y,w,h,angle], ... ] | null]} */
@@ -102,8 +104,10 @@
     controls.appendChild(bPrev); controls.appendChild(counter); controls.appendChild(bNext); controls.appendChild(range);
     var actions = el('div', 'fb-actions');
     var bSearch = tbtn('Search', 'Search text');
+    var bSelect = tbtn('Select text', 'Select and copy text');
+    bSelect.setAttribute('aria-pressed', 'false');
     var bFull = tbtn('Full screen');
-    if (hasText) actions.appendChild(bSearch);
+    if (hasText) { actions.appendChild(bSelect); actions.appendChild(bSearch); }
     actions.appendChild(bFull);
     var bClose = null;
     if (opts.onClose) { bClose = tbtn('Close'); actions.appendChild(bClose); }
@@ -338,6 +342,14 @@
       root.focus({ preventScroll: true });
     }
     bSearch.onclick = function () { if (panel.hidden) openSearch(); else closeSearch(); };
+    // "Select text" mode: pointer selects/copies text; swiping and click-to-turn pause until it's switched off.
+    bSelect.onclick = function () {
+      var on = !root.classList.contains('is-selecting');
+      root.classList.toggle('is-selecting', on);
+      bSelect.textContent = on ? 'Done selecting' : 'Select text';
+      bSelect.setAttribute('aria-pressed', String(on));
+      if (!on && window.getSelection) window.getSelection().removeAllRanges();
+    };
     sClose.onclick = closeSearch;
 
     // ---- input
@@ -355,23 +367,43 @@
     };
     if (bClose) bClose.onclick = function () { opts.onClose(); };
 
+    // ---- turning by hand: click, drag/swipe (mouse + touch), two-finger trackpad swipe.
+    // While "Select text" is on, the pointer selects text instead and none of this fires.
+    function selecting() { return root.classList.contains('is-selecting'); }
     var down = null;
     stage.addEventListener('pointerdown', function (e) {
-      if (e.button !== 0) return;
-      down = { x: e.clientX, y: e.clientY, onText: !!(e.target.closest && e.target.closest('.fb-text span')) };
+      if (e.button !== 0 || selecting()) return;
+      down = { x: e.clientX, y: e.clientY };
     });
     stage.addEventListener('pointerup', function (e) {
       if (!down) return;
       var d = down; down = null;
       var dx = e.clientX - d.x, dy = e.clientY - d.y;
-      if (window.getSelection && String(window.getSelection())) return;   // selecting text, don't turn
-      if (!d.onText && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { if (dx < 0) next(); else prev(); return; }
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { if (dx < 0) next(); else prev(); return; }
       if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
         var r = book.getBoundingClientRect();
         if (e.clientX >= r.left + r.width / 2) next(); else prev();
       }
     });
     stage.addEventListener('pointercancel', function () { down = null; });
+
+    // Trackpad: a two-finger horizontal swipe arrives as horizontal wheel events.
+    // Accumulate them, turn once, then ignore the trackpad's momentum tail for a moment.
+    var wheelSum = 0, wheelQuietUntil = 0, wheelReset = null;
+    stage.addEventListener('wheel', function (e) {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;       // vertical scroll: leave it to the page
+      e.preventDefault();
+      var now = Date.now();
+      clearTimeout(wheelReset);
+      wheelReset = setTimeout(function () { wheelSum = 0; }, 180);
+      if (now < wheelQuietUntil) return;
+      wheelSum += e.deltaX;
+      if (Math.abs(wheelSum) > 50) {
+        if (wheelSum > 0) next(); else prev();
+        wheelSum = 0;
+        wheelQuietUntil = now + Math.max(500, DUR);
+      }
+    }, { passive: false });
 
     function onKey(e) {
       if (!root.isConnected) return;

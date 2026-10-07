@@ -70,21 +70,12 @@
     return data;
   }
 
-  /** Save to disk: native "Save as…" dialog where available, plain download otherwise. */
+  /** Save to disk as a normal browser download (lands in the Downloads folder, or wherever
+      the browser is set to ask). We deliberately don't use the "Save as…" file picker:
+      Chrome rejects it for pages opened from file:// with an error that looks like a user
+      cancel, so downloads silently did nothing. */
   async function saveFile(name, html) {
     var blob = new Blob([html], { type: 'text/html' });
-    if (window.showSaveFilePicker) {
-      try {
-        var handle = await window.showSaveFilePicker({ suggestedName: name, types: [{ description: 'Flipbook', accept: { 'text/html': ['.html'] } }] });
-        var w = await handle.createWritable();
-        await w.write(blob);
-        await w.close();
-        return handle.name;
-      } catch (e) {
-        if (e && e.name === 'AbortError') return null;     // user cancelled
-        console.warn('Save dialog unavailable, downloading instead', e);
-      }
-    }
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = name;
