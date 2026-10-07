@@ -1,0 +1,124 @@
+<!doctype html>
+<!--
+  Flipbook Studio — source template.
+  This file is NOT opened directly. `python3 build.py` inlines every /*@@NAME@@*/
+  marker below and writes the single offline file dist/Flipbook-Studio.html.
+  See docs/ARCHITECTURE.md for the full map.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Privacy lock: the browser refuses every network request from this page.
+     'unsafe-eval' / 'wasm-unsafe-eval' are needed by the bundled OCR + HEIC decoders (WebAssembly);
+     they do not allow any network access. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:; worker-src blob:; style-src 'unsafe-inline'; img-src data: blob:; font-src data: blob:; connect-src blob: data:; form-action 'none'; base-uri 'none'">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flipbook Studio</title>
+<style id="fonts-css">/*@@FONTS_CSS@@*/</style>
+<style id="viewer-css">/*@@VIEWER_CSS@@*/</style>
+<style>/*@@STUDIO_CSS@@*/</style>
+</head>
+<body>
+
+<!-- ───────────── Masthead ───────────── -->
+<header class="masthead">
+  <span class="mast-name">Flipbook Studio</span>
+  <nav class="mast-nav" aria-label="Sections">
+    <button class="mast-tab is-active" data-view="make">Make</button>
+    <span class="mast-plus" aria-hidden="true">+</span>
+    <button class="mast-tab" data-view="library">Library <span id="libCount" class="num"></span></button>
+  </nav>
+  <span class="mast-note">Offline · Private · No account</span>
+</header>
+
+<main>
+  <!-- ───────────── Make ───────────── -->
+  <section id="view-make" class="view">
+    <div class="make-head">
+      <input id="title" class="title-input" placeholder="Untitled" maxlength="120" autocomplete="off" spellcheck="false" aria-label="Flipbook title">
+      <div class="make-meta">
+        <span id="metaPages" class="label">No pages yet</span>
+        <span id="metaText" class="label soft"></span>
+        <span id="metaEditing" class="label soft" hidden></span>
+      </div>
+      <div class="make-actions">
+        <button class="act act-primary" id="bRead">Read <span aria-hidden="true">→</span></button>
+        <button class="act" id="bSave">Save to library</button>
+        <button class="act" id="bDownload">Download flipbook <span aria-hidden="true">↓</span></button>
+      </div>
+    </div>
+
+    <div class="toolbar" role="toolbar" aria-label="Pages">
+      <div class="tools">
+        <button class="tool" id="tAdd">Add files +</button>
+        <button class="tool" id="tBlank">Blank page</button>
+        <button class="tool" id="tReverse">Reverse</button>
+        <button class="tool" id="tSort">Sort A–Z</button>
+        <button class="tool" id="tClear">Clear</button>
+      </div>
+      <div class="settings">
+        <label class="setting">Quality
+          <select id="quality">
+            <option value="1600">Standard</option>
+            <option value="2400" selected>High</option>
+            <option value="3200">Print</option>
+          </select>
+        </label>
+        <label class="setting switch">
+          <input type="checkbox" id="ocr" checked>
+          <span>Read text in images (OCR)</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="board" id="board">
+      <div class="drop" id="drop">
+        <span class="corner tl">01 — Upload</span>
+        <span class="corner tr">02 — Arrange</span>
+        <span class="corner bl">03 — Read</span>
+        <span class="corner br">04 — Keep</span>
+        <div class="drop-body">
+          <h1 class="drop-title">Drop PDFs &amp; images<br><em>to make a magazine.</em></h1>
+          <button class="act act-primary" id="dropPick">Choose files <span aria-hidden="true">→</span></button>
+          <p class="label soft">PDF · JPG · PNG · HEIC · WEBP — nothing leaves this computer</p>
+        </div>
+      </div>
+      <div class="spreads" id="spreads" hidden></div>
+    </div>
+  </section>
+
+  <!-- ───────────── Library ───────────── -->
+  <section id="view-library" class="view" hidden>
+    <div class="lib-head">
+      <h1 class="lib-title">Library <span id="libNum" class="num-serif"></span></h1>
+      <p class="label soft">Saved in this browser on this computer. Downloaded files are your permanent copies.</p>
+      <button class="act" id="bImport">Import flipbook file <span aria-hidden="true">↑</span></button>
+    </div>
+    <div class="shelf" id="shelf"></div>
+  </section>
+</main>
+
+<div class="viewer" id="viewer" hidden></div>
+<div class="status" id="status" hidden>
+  <span id="statusText"></span><span id="statusPct" class="num"></span>
+  <i class="status-line" id="statusLine"></i>
+</div>
+<input type="file" id="fileInput" multiple accept="application/pdf,.pdf,image/*,.heic,.heif,.html,.htm" hidden>
+<input type="file" id="importInput" multiple accept=".html,.htm,text/html" hidden>
+
+<!-- ───────────── Bundled engines (all offline) ───────────── -->
+<script>/*@@PDFJS@@*/</script>
+<script type="text/plain" id="src-pdf-worker">/*@@PDF_WORKER@@*/</script>
+<script>/*@@TESSERACT@@*/</script>
+<script type="text/plain" id="src-ocr-worker">/*@@TESS_WORKER@@*/</script>
+<script type="text/plain" id="src-ocr-core">/*@@TESS_CORE@@*/</script>
+<script type="text/plain" id="src-ocr-eng">/*@@ENG_DATA_B64@@*/</script>
+<script>/*@@HEIC2ANY@@*/</script>
+
+<!-- ───────────── Flipbook viewer (also copied into every export) ───────────── -->
+<script id="viewer-src">/*@@VIEWER_JS@@*/</script>
+
+<!-- ───────────── Studio app ───────────── -->
+<script>/*@@STUDIO_JS@@*/</script>
+</body>
+</html>

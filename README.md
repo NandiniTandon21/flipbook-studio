@@ -1,34 +1,68 @@
 # Flipbook Studio
 
-Turn PDFs and images into flipbook magazines with real horizontal page turns. Store them and share them as flipbooks, not as PDFs.
+Turn PDFs and images into **flipbook magazines** with horizontal page turns and **searchable, selectable text**. Then keep them and share them as flipbooks, not as PDFs.
 
-**Private and offline.** Everything runs on your computer. There's no account, no server, and nothing gets uploaded. A built-in browser security policy blocks every network request from the app.
+**Private and offline.** Everything runs on your computer. There's no account, no server, and nothing gets uploaded. A security policy built into the page blocks every network request, and the tests check that it does.
 
 ## Download & run
 
-1. Download **[Flipbook-Studio.html](https://github.com/NandiniTandon21/flipbook-studio/releases/latest/download/Flipbook-Studio.html)** (one file, about 1.5 MB).
-2. Double-click it. It opens in your browser (Chrome, Edge, Safari, or Firefox).
+1. Download **[Flipbook-Studio.html](https://github.com/NandiniTandon21/flipbook-studio/releases/latest/download/Flipbook-Studio.html)** (one file, about 11 MB).
+2. Double-click it. It opens in Chrome, Edge, Safari, or Firefox.
 3. Make your magazine.
 
-There's nothing to install and no internet connection is needed. It works the same on any computer.
+There's nothing to install and you don't need to be online. The same file works on macOS, Windows, and Linux.
 
 ## What it does
 
-- **Upload**: drop in PDFs and images (JPG, PNG, WebP, GIF). Every PDF page becomes a magazine page.
-- **Arrange**: drag pages to reorder them, or use the arrows. You can also delete pages, reverse the order, sort by file name, or add blank pages to line up spreads.
-- **Read**: the front cover shows alone first, then two-page spreads with a 3D horizontal page turn. Turn pages by clicking, swiping, or with the arrow keys. There's also a page slider and full-screen mode.
-- **Store**: the **Library** keeps your flipbooks in this browser on this computer. You can read, edit, download, or delete them there.
-- **Download**: you get a single `.html` magazine file. It opens and flips offline in any browser on any device, so you can send it to anyone. Drop it back into Studio to edit it.
+| | |
+|---|---|
+| **Upload** | PDF, JPG, PNG, WebP, GIF, AVIF, and **HEIC/HEIF** (iPhone photos, decoded in every browser) |
+| **Searchable text** | PDF text is kept along with where it sits on the page. Text in images and scanned pages is read by built-in **OCR** (English). |
+| **Arrange** | Pages are laid out the way the magazine opens: the cover, then spreads. Drag to reorder, or use the ← → buttons. You can also add blank pages, reverse the order, or sort A–Z. |
+| **Read** | Two-page spreads with a 3D page turn. Click, swipe, use the arrow keys or the slider, or go full screen. **Search** (⌘/Ctrl-F) jumps to each match and highlights it. You can select and copy text. |
+| **Library** | Saves your flipbooks in this browser so you can read, edit, download, or delete them. Your work in progress autosaves. |
+| **Download** | Creates one `.html` flipbook that opens offline in any browser and can still be searched. Drop it back into Studio to edit it. |
 
-> The library lives in browser storage. Your downloaded `.html` flipbooks are the permanent copies, so keep them somewhere safe.
+> The Library lives in this browser's storage. The `.html` files you download are your permanent copies.
+
+## Browser support
+
+The automated test suite (`npm test`) runs the whole flow in **Chromium, Firefox, and WebKit** (Safari's engine). See [docs/TESTING.md](docs/TESTING.md).
+
+## Project layout
+
+```
+src/
+  studio/            the app you open (Make + Library)
+    index.html       page template with /*@@MARKERS@@*/ that the build fills in
+    studio.css       editorial UI styles
+    util.js          shared helpers + the global `Studio` namespace
+    storage.js       Library (IndexedDB)
+    ocr.js           offline text recognition (Tesseract, WebAssembly)
+    importers.js     PDF / image / HEIC / flipbook → pages (+ text)
+    exporter.js      the flipbook file format: build, parse, save
+    app.js           UI wiring: board, library, reader overlay
+  viewer/            the flip engine, also copied into every exported flipbook
+    viewer.js
+    viewer.css
+vendor/              pinned third-party engines + fonts (see vendor/README.md)
+tests/               end-to-end tests + fixtures
+docs/                ARCHITECTURE.md, TESTING.md
+build.py             inlines everything → dist/Flipbook-Studio.html
+dist/                the built single-file app (what users download)
+```
 
 ## Develop
 
-```
-src/app.html     studio UI
-src/viewer.*     flip engine (shared with every exported flipbook)
-vendor/          pdf.js 3.11.174 (Apache-2.0)
-python3 build.py → Flipbook Studio.html (single self-contained file)
+```bash
+python3 build.py      # → dist/Flipbook-Studio.html (stdlib only, no network)
+npm install           # once: installs Playwright for tests
+npx playwright install chromium firefox webkit
+npm test              # build + end-to-end test in all three engines
 ```
 
-Limitations: PDF pages are saved as images, so you can't select text in the flipbook. HEIC photos only open in Safari.
+To understand how it works, read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Changes are listed in [CHANGELOG.md](CHANGELOG.md).
+
+## Licence
+
+MIT for this project's code (see [LICENSE](LICENSE)). The bundled third-party components keep their own licences. They're listed in [vendor/README.md](vendor/README.md).
