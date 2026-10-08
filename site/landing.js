@@ -22,8 +22,18 @@
   var SERIF = '"FS GT America", "Archivo", Helvetica, Arial, sans-serif';   // one grotesk throughout
   var MONO = SERIF;
 
+  /** Largest font size (≤ size) at which `text` fits in maxW, so big type never runs off the page. */
+  function fit(ctx, style, size, text, maxW) {
+    for (; size > 12; size -= 4) { ctx.font = style + ' ' + size + 'px ' + SERIF; if (ctx.measureText(text).width <= maxW) break; }
+    return size;
+  }
+
   function wrap(ctx, text, x, y, maxW, lineH) {
     var words = text.split(' '), line = '';
+    var m = /^(.*?)(\d+)px (.*)$/.exec(ctx.font), longest = words.reduce(function (a, w) { return ctx.measureText(w).width > ctx.measureText(a).width ? w : a; }, '');
+    if (m && ctx.measureText(longest).width > maxW) {      // one word wider than the line: shrink to fit
+      var sz = fit(ctx, m[1].trim(), +m[2], longest, maxW); lineH = lineH * sz / +m[2];
+    }
     for (var i = 0; i < words.length; i++) {
       var test = line ? line + ' ' + words[i] : words[i];
       if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, x, y); line = words[i]; y += lineH; }
@@ -67,8 +77,10 @@
         mono(x, 'FREE · OFFLINE · NO SIGN-UP', W - 90, 130, C.bone, 'right');
         rule(x, 170, C.boneSoft);
         x.fillStyle = C.bone;
-        x.font = '800 270px ' + SERIF; x.fillText('Flipbook', 80, 760);
-        x.font = 'italic 500 270px ' + SERIF; x.fillText('Studio', 80, 1010);
+        var maxW = W - 180;                         // inside the page margins
+        var big = Math.min(fit(x, '800', 270, 'Flipbook', maxW), fit(x, 'italic 500', 270, 'Studio', maxW));
+        x.font = '800 ' + big + 'px ' + SERIF; x.fillText('Flipbook', 90, 760);
+        x.font = 'italic 500 ' + big + 'px ' + SERIF; x.fillText('Studio', 90, 760 + big * 0.95);
         x.font = '400 64px ' + SERIF; wrap(x, 'PDFs & images, turned into magazines you can keep.', 90, 1260, W - 260, 78);
         mono(x, 'CLICK OR SWIPE TO TURN →', 90, 1510, C.boneSoft);
       }),

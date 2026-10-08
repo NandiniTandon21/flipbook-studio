@@ -6,6 +6,10 @@
      books  {id, data}                                                (full flipbook)
      kv     {k:'draft', ...}                                          (autosaved board)
 
+   Compatibility rule: never rename or delete stores/fields. New fields are optional,
+   and readers (exporter.normalize, app.loadDraft) fill in defaults for older records.
+   A schema change must bump the indexedDB.open() version and migrate in onupgradeneeded.
+
    If the browser refuses storage (some browsers do for files opened from disk),
    `available` becomes false and the UI explains that downloads are the way to keep work.
    ========================================================================== */
@@ -89,6 +93,10 @@
   }
   function loadDraft() { return get('kv', 'draft'); }
 
+  /** Small settings (e.g. which version notices were already shown). Same 'kv' store, no schema change. */
+  function getKV(k) { return get('kv', k).then(function (r) { return r ? r.v : undefined; }).catch(function () { return undefined; }); }
+  function setKV(k, v) { return tx(['kv'], 'readwrite', function (t) { t.objectStore('kv').put({ k: k, v: v }); }).catch(function () {}); }
+
   /** Ask the browser not to evict our data under storage pressure. */
   function persist() {
     if (navigator.storage && navigator.storage.persist) return navigator.storage.persist().catch(function () {});
@@ -98,6 +106,6 @@
   S.storage = {
     available: true,
     open: open, saveBook: saveBook, deleteBook: deleteBook, loadBook: loadBook, listBooks: listBooks,
-    getMeta: getMeta, saveDraft: saveDraft, loadDraft: loadDraft, persist: persist
+    getMeta: getMeta, saveDraft: saveDraft, loadDraft: loadDraft, getKV: getKV, setKV: setKV, persist: persist
   };
 })(window.Studio);

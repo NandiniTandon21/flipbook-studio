@@ -2,6 +2,23 @@
 
 Every feature or fix gets an entry here, in the same commit. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 2.6.0
+
+**Backward compatible, version-aware (still fully offline)**
+- **Everything older keeps working in the new app:** flipbooks saved by any earlier version, flipbook files downloaded from any earlier version (including 1.x files without text), and unsaved drafts from earlier versions. A single `normalize()` step upgrades old data on the way in, with nothing lost. Tested by filling the browser with v1-era data and importing a real v1-format file.
+- **Files from newer versions open too.** Unknown fields are kept, so editing and re-saving a newer flipbook doesn't strip what the newer app added.
+- **A new download sees your existing shelf.** Verified in Chrome, Firefox, and Safari: copies of the app opened from different folders or file names share the same saved flipbooks (per browser).
+- **The app shows its version** at the top right, and the website shows the latest version, so you can compare.
+- **A quiet note, never forced.** The app can't check online, so it mentions a newer version only when (a) you open a flipbook made with a newer version, or (b) your copy is more than 4 months old. It's one line under the header with "Get the latest" and "Don't show again", shown **once** per reason and never again, whether you click it or not. There's no auto-update and no popups.
+- Exported flipbooks now record which app version made them (`appVersion`).
+
+**Fixes**
+- **Demo text fit:** large type on the demo magazine pages now shrinks to fit the page width ("Flipbook" no longer runs off the cover). The demo label no longer overlaps wide spreads.
+
+**Website:** "Latest version" in the header, plus two new FAQ entries: "Is my copy up to date?" and "Will my old flipbooks still work?".
+
+**Tests:** new `tests/compat.mjs` (legacy library + draft, v1 file, future file with unknown fields, the newer-version note shown once, the outdated-copy note shown once) in all three engines.
+
 ## 2.5.0
 
 **Typeface, like utrecht.jp.** Everything now uses one grotesk: **GT America** if it's installed (it's commercial, so it's never bundled; the app loads a locally installed copy), otherwise the bundled **Archivo** (open licence), the closest free match. EB Garamond, IBM Plex Mono, and the Advercase hook were removed. The app file is slightly smaller.

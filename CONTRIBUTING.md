@@ -6,6 +6,10 @@
 2. Add an entry to **[CHANGELOG.md](CHANGELOG.md)** under the next version, in the same commit: what changed and why, in plain words.
 3. Run `python3 build.py`, which regenerates `dist/Flipbook-Studio.html`. Commit that file too.
 
+## Compatibility
+
+Never break older data: fields are additive only, and old shapes are upgraded in `exporter.normalize()` / `app.loadDraft()`. See *Compatibility rules* in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). `tests/compat.mjs` must pass.
+
 ## Before a release
 
 ```bash

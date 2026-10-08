@@ -65,7 +65,7 @@ code { font-size: .92em; }
 
 /* demo panel */
 .demo { position: relative; background: var(--cornflower); }
-.demo-label { position: absolute; top: 18px; left: 22px; color: var(--ink); z-index: 2; }
+.demo-label { display: block; padding: 18px 22px 0; color: var(--ink); }
 .demo-stage { height: min(80vh, 760px); min-height: 460px; }
 .demo-stage .fb-root { background: transparent; }
 .demo-stage .fb-bar { padding-left: 22px; padding-right: 22px; }

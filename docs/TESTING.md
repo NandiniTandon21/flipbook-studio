@@ -28,6 +28,10 @@ node tests/e2e.mjs webkit                         # one engine only
 
 Screenshots of each step, plus each engine's exported flipbook, are written to `tests/artifacts/` (git-ignored). Look through them after visual changes.
 
+## Compatibility
+
+`tests/compat.mjs` (all three engines) fills browser storage with v1-era records (a book with no text or ratios, metadata with no `searchable`, a draft with no `dirty`). It checks they show, read, edit, and save. It then imports `fixtures/flipbook-v1.html` and `fixtures/flipbook-future.html` (v9.0.0 with an unknown `futureFeature`), checks that the unknown field survives an edit and save, and checks that the "newer version" and "outdated copy" notes each appear exactly once. Regenerate the fixtures with `python3 tests/make-compat-fixtures.py`.
+
 ## Landing page
 
 `tests/site.mjs` opens `docs/index.html` in all three engines. It checks that every Download button points to the latest release file, the version is shown, the space bar scrolls the page (instead of flipping the demo), the demo flipbook turns, the nav links scroll to their sections, and there are no outside requests and no errors.

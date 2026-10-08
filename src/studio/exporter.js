@@ -33,8 +33,29 @@
       thumbs: pages.map(function (p) { return p.thumb; }),
       ratios: pages.map(function (p) { return U.round4(p.w / p.h); }),
       text: pages.map(function (p) { return p.text || null; }),
+      appVersion: (window.FS_BUILD && window.FS_BUILD.version) || '',   // which app made it (since 2.6.0)
       created: new Date().toISOString()
     };
+  }
+
+  /**
+   * Bring book data from ANY version into the current shape, without losing anything.
+   *   v1 (1.x):   {title, aspect, pages, thumbs}                 → text/ratios filled with null
+   *   v2 (2.x):   + ratios, text, (appVersion since 2.6.0)
+   *   future:     unknown extra fields are kept untouched, so re-saving doesn't drop them
+   * Returns null if it isn't a flipbook at all.
+   */
+  function normalize(data) {
+    if (!data || !Array.isArray(data.pages) || !data.pages.length) return null;
+    var n = data.pages.length;
+    function list(a) { return Array.isArray(a) && a.length === n ? a : data.pages.map(function () { return null; }); }
+    data.title = typeof data.title === 'string' && data.title.trim() ? data.title : 'Untitled';
+    data.aspect = data.aspect > 0 ? data.aspect : 0.7071;
+    data.text = list(data.text);
+    data.ratios = list(data.ratios);
+    data.thumbs = list(data.thumbs);
+    data.appVersion = data.appVersion || '';
+    return data;
   }
 
   /** Render book data into a standalone flipbook HTML document. */
@@ -45,7 +66,7 @@
     return '<!doctype html>\n<html lang="en"><head><meta charset="utf-8">\n' +
       '<meta http-equiv="Content-Security-Policy" content="' + EXPORT_CSP + '">\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
-      '<meta name="generator" content="Flipbook Studio">\n' +
+      '<meta name="generator" content="Flipbook Studio ' + U.escapeHtml(data.appVersion || '') + '">\n' +
       '<title>' + U.escapeHtml(data.title) + '</title>\n' +
       '<style>html,body{margin:0;height:100%;background:#BDD5E2}#flipbook{position:fixed;inset:0}</style>\n' +
       '<style>' + text('fonts-css') + '</style>\n' +
@@ -64,10 +85,7 @@
     if (!node) return null;
     var data;
     try { data = JSON.parse(node.textContent); } catch (e) { return null; }
-    if (!data || !Array.isArray(data.pages)) return null;
-    data.title = data.title || 'Untitled';
-    data.text = data.text || data.pages.map(function () { return null; });   // v1 files had no text
-    return data;
+    return normalize(data);
   }
 
   /** Save to disk as a normal browser download (lands in the Downloads folder, or wherever
@@ -88,5 +106,5 @@
 
   function fileName(title) { return U.cleanName(title) + ' — flipbook.html'; }
 
-  S.exporter = { toData: toData, buildHtml: buildHtml, parse: parse, saveFile: saveFile, fileName: fileName };
+  S.exporter = { toData: toData, normalize: normalize, buildHtml: buildHtml, parse: parse, saveFile: saveFile, fileName: fileName };
 })(window.Studio);

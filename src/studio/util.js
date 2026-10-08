@@ -66,7 +66,18 @@ window.Studio = window.Studio || {};
     return (s || 'flipbook').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100) || 'flipbook';
   }
 
+  /** Compare "2.10.1" vs "2.9" numerically. Returns 1, 0 or -1. Unknown/empty counts as oldest. */
+  function compareVersions(a, b) {
+    var pa = String(a || '0').split('.').map(Number), pb = String(b || '0').split('.').map(Number);
+    for (var i = 0; i < Math.max(pa.length, pb.length); i++) {
+      var x = pa[i] || 0, y = pb[i] || 0;
+      if (x !== y) return x > y ? 1 : -1;
+    }
+    return 0;
+  }
+
   S.util = {
+    compareVersions: compareVersions,
     uid: uid, loadImage: loadImage, whiteCanvas: whiteCanvas, thumbFrom: thumbFrom,
     pageFromCanvas: pageFromCanvas, round4: round4, pad2: pad2, naturalCompare: naturalCompare,
     nextFrame: nextFrame, escapeHtml: escapeHtml, cleanName: cleanName

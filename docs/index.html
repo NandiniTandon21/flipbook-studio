@@ -209,7 +209,7 @@ code { font-size: .92em; }
 
 /* demo panel */
 .demo { position: relative; background: var(--cornflower); }
-.demo-label { position: absolute; top: 18px; left: 22px; color: var(--ink); z-index: 2; }
+.demo-label { display: block; padding: 18px 22px 0; color: var(--ink); }
 .demo-stage { height: min(80vh, 760px); min-height: 460px; }
 .demo-stage .fb-root { background: transparent; }
 .demo-stage .fb-bar { padding-left: 22px; padding-right: 22px; }
@@ -278,7 +278,7 @@ code { font-size: .92em; }
   <header class="header">
     <div class="header-small">
       <span>A free flipbook maker · no account · nothing uploaded</span>
-      <span><span data-version></span> · <span data-size></span></span>
+      <span>Latest version: <b><span data-version></span></b> · <span data-size></span></span>
     </div>
     <nav class="mainnav" aria-label="Sections">
       <a class="navlink" href="#why">Why</a>
@@ -357,6 +357,8 @@ code { font-size: .92em; }
       <details><summary>What do I get when I download a flipbook?</summary><p>A single <code>.html</code> file containing your pages and the page-turning reader. Double-click it and it opens in any modern browser, on any computer, with nothing else needed.</p></details>
       <details><summary>Which browsers and computers?</summary><p>Chrome, Edge, Safari, and Firefox on Mac, Windows, and Linux. Every release is tested in all three browser engines.</p></details>
       <details><summary>Can it read text in other languages?</summary><p>Text already inside a PDF works in any language. Reading text <em>from images</em> (OCR) is English-only for now. More languages are on the roadmap.</p></details>
+      <details><summary>Is my copy up to date?</summary><p>Your app shows its version at the top right; the latest is at the top of this page. If yours is older, download the new one whenever you like. It can’t update itself (it never goes online), and it will only mention a newer version once, quietly.</p></details>
+      <details><summary>Will my old flipbooks still work?</summary><p>Yes. New versions open everything older versions made: saved flipbooks, downloaded flipbook files, and unsaved work. Open the new copy in the same browser and your shelf is still there. Flipbook files you downloaded before keep working on their own, too.</p></details>
       <details><summary>Where are my saved flipbooks stored?</summary><p>In your browser’s storage on that computer. The files you download are your permanent copies, so keep those somewhere safe.</p></details>
     </div>
   </section>
@@ -374,7 +376,7 @@ code { font-size: .92em; }
 <script>
   // Filled in by build.py
   window.SITE = {
-    version: "2.5.0",
+    version: "2.6.0",
     size: "11 MB",
     download: "https://github.com/NandiniTandon21/flipbook-studio/releases/latest/download/Flipbook-Studio.html"
   };
@@ -856,8 +858,18 @@ code { font-size: .92em; }
   var SERIF = '"FS GT America", "Archivo", Helvetica, Arial, sans-serif';   // one grotesk throughout
   var MONO = SERIF;
 
+  /** Largest font size (≤ size) at which `text` fits in maxW, so big type never runs off the page. */
+  function fit(ctx, style, size, text, maxW) {
+    for (; size > 12; size -= 4) { ctx.font = style + ' ' + size + 'px ' + SERIF; if (ctx.measureText(text).width <= maxW) break; }
+    return size;
+  }
+
   function wrap(ctx, text, x, y, maxW, lineH) {
     var words = text.split(' '), line = '';
+    var m = /^(.*?)(\d+)px (.*)$/.exec(ctx.font), longest = words.reduce(function (a, w) { return ctx.measureText(w).width > ctx.measureText(a).width ? w : a; }, '');
+    if (m && ctx.measureText(longest).width > maxW) {      // one word wider than the line: shrink to fit
+      var sz = fit(ctx, m[1].trim(), +m[2], longest, maxW); lineH = lineH * sz / +m[2];
+    }
     for (var i = 0; i < words.length; i++) {
       var test = line ? line + ' ' + words[i] : words[i];
       if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, x, y); line = words[i]; y += lineH; }
@@ -901,8 +913,10 @@ code { font-size: .92em; }
         mono(x, 'FREE · OFFLINE · NO SIGN-UP', W - 90, 130, C.bone, 'right');
         rule(x, 170, C.boneSoft);
         x.fillStyle = C.bone;
-        x.font = '800 270px ' + SERIF; x.fillText('Flipbook', 80, 760);
-        x.font = 'italic 500 270px ' + SERIF; x.fillText('Studio', 80, 1010);
+        var maxW = W - 180;                         // inside the page margins
+        var big = Math.min(fit(x, '800', 270, 'Flipbook', maxW), fit(x, 'italic 500', 270, 'Studio', maxW));
+        x.font = '800 ' + big + 'px ' + SERIF; x.fillText('Flipbook', 90, 760);
+        x.font = 'italic 500 ' + big + 'px ' + SERIF; x.fillText('Studio', 90, 760 + big * 0.95);
         x.font = '400 64px ' + SERIF; wrap(x, 'PDFs & images, turned into magazines you can keep.', 90, 1260, W - 260, 78);
         mono(x, 'CLICK OR SWIPE TO TURN →', 90, 1510, C.boneSoft);
       }),

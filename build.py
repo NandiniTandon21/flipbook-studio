@@ -10,6 +10,7 @@ Each marker is replaced with the content listed in PARTS / site_parts below.
 No third-party Python packages, no network: everything comes from src/, site/ and vendor/.
 """
 from base64 import b64encode
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -73,6 +74,8 @@ PARTS = {
     "TESS_CORE": lambda: script_safe(read(VENDOR / "tesseract-core-simd-lstm.wasm.js")),
     "ENG_DATA_B64": lambda: b64encode((VENDOR / "eng.traineddata.gz").read_bytes()).decode(),
     "HEIC2ANY": lambda: script_safe(read(VENDOR / "heic2any.min.js")),
+    "VERSION": lambda: version(),                       # from CHANGELOG.md
+    "BUILD_DATE": lambda: date.today().isoformat(),     # shown to users; drives the gentle "may be outdated" hint
 }
 
 

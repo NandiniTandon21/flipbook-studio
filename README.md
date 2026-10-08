@@ -43,6 +43,14 @@ There's nothing to install and you don't need to be online. The same file works 
 
 One grotesk throughout, like utrecht.jp: **GT America** ([Grilli Type](https://www.grillitype.com/typeface/gt-america)) if it's installed on your computer, otherwise the bundled **Archivo** (SIL OFL), the closest free match. GT America is never bundled into the app or your exported flipbooks, because it's a commercial font.
 
+## Updating & compatibility
+
+The app never goes online, so it doesn't auto-update. It shows its version at the top right; the latest version is on the [website](https://nandinitandon21.github.io/flipbook-studio/). If a newer one exists, the app may say so **once**, quietly. Download the new copy whenever you like:
+
+- your saved flipbooks are still there (same browser), even if the new file has a different name or sits in a different folder;
+- flipbook files and drafts from any older version open in the new one;
+- flipbook files you downloaded before keep working on their own.
+
 ## Browser support
 
 The automated test suite (`npm test`) runs the whole flow in **Chromium, Firefox, and WebKit** (Safari's engine). See [docs/TESTING.md](docs/TESTING.md).

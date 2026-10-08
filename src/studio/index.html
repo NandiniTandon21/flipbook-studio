@@ -41,7 +41,13 @@
   <header class="header">
     <div class="header-small">
       <span>Free · no account · works offline</span>
-      <span id="libCount" class="num"></span>
+      <span><span id="libCount" class="num"></span><span id="appVersion" class="num" title="Compare with the latest version on the website"></span></span>
+    </div>
+    <!-- gentle, dismissible "a newer version may exist" note (see app.js → versionNotice) -->
+    <div class="notice" id="notice" hidden>
+      <span id="noticeText"></span>
+      <a id="noticeLink" target="_blank" rel="noopener">Get the latest</a>
+      <button class="link" id="noticeClose">Don’t show again</button>
     </div>
     <nav class="mainnav" aria-label="Main">
       <button class="navlink" data-go="home" id="navHome">My flipbooks</button>
@@ -160,6 +166,14 @@
 <script id="viewer-src">/*@@VIEWER_JS@@*/</script>
 
 <!-- ───────────── Studio app ───────────── -->
+<script>
+  // Filled in by build.py. The app is offline, so this is how it knows what it is.
+  window.FS_BUILD = {
+    version: "/*@@VERSION@@*/",
+    date: "/*@@BUILD_DATE@@*/",
+    site: "https://nandinitandon21.github.io/flipbook-studio/"
+  };
+</script>
 <script>/*@@STUDIO_JS@@*/</script>
 </body>
 </html>

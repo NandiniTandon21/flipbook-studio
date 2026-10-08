@@ -18,8 +18,10 @@
     pages: [],          // page records in reading order
     title: '',
     editingId: null,    // library id when editing a saved flipbook
-    dirty: false        // changes not yet saved to the library
+    dirty: false,       // changes not yet saved to the library
+    extra: null         // the saved book's original data: unknown (newer) fields survive a re-save
   };
+  var BUILD = window.FS_BUILD || { version: '', date: '', site: '' };
 
   // ======================================================== status line
   var statusTimer;
@@ -59,7 +61,7 @@
   }
   function startNew() {
     if (!okToDiscard('Start a new flipbook')) return;
-    state.pages = []; state.title = ''; state.editingId = null; state.dirty = false;
+    state.pages = []; state.title = ''; state.editingId = null; state.dirty = false; state.extra = null;
     $('title').value = '';
     saveDraft();
     show('edit');
@@ -291,7 +293,7 @@
     e.preventDefault(); depth = 0; board.classList.remove('is-dragging-files');
     var files = Array.prototype.slice.call(e.dataTransfer.files);
     if (current === 'home' && files.every(function (f) { return S.importers.kindOf(f) === 'html'; })) importToLibrary(files);
-    else if (current === 'home') { if (okToDiscard('Start a new flipbook')) { state.pages = []; state.title = ''; state.editingId = null; $('title').value = ''; addFiles(files); } }
+    else if (current === 'home') { if (okToDiscard('Start a new flipbook')) { state.pages = []; state.title = ''; state.editingId = null; state.extra = null; $('title').value = ''; addFiles(files); } }
     else addFiles(files);
   });
 
@@ -341,8 +343,11 @@
   async function loadDraft() {
     try {
       var d = await store.loadDraft();
-      if (d && d.pages) {
-        state.pages = d.pages; state.editingId = d.editingId || null;
+      if (d && Array.isArray(d.pages)) {
+        state.pages = d.pages.filter(function (p) { return p && p.src; }).map(function (p) {
+          return { id: p.id || U.uid(), src: p.src, thumb: p.thumb || p.src, w: p.w || 1000, h: p.h || 1414, name: p.name || 'Page', text: p.text || null };
+        });
+        state.editingId = d.editingId || null;
         state.dirty = d.dirty == null ? !d.editingId && d.pages.length > 0 : d.dirty;  // older drafts had no flag
         setTitle(d.title);
       }
@@ -350,7 +355,11 @@
   }
 
   // ======================================================== preview / save / download
-  function currentData() { return ex.toData(state.title || 'Untitled flipbook', state.pages); }
+  // Start from the original book (if editing one) so fields written by a newer version aren't dropped.
+  function currentData() {
+    var base = state.extra ? Object.assign({}, state.extra) : {};
+    return Object.assign(base, ex.toData(state.title || 'Untitled flipbook', state.pages));
+  }
 
   var reader = null;
   function openReader(data, startPage) {
@@ -400,7 +409,7 @@
   async function refreshCount() {
     try {
       var n = (await store.listBooks()).length;
-      $('libCount').textContent = n ? U.pad2(n) + ' saved' : '';
+      $('libCount').textContent = n ? U.pad2(n) + ' saved · ' : '';
     } catch (e) { $('libCount').textContent = ''; }
   }
 
@@ -422,7 +431,7 @@
       $('storageNote').textContent = 'This browser doesn’t allow storage for files opened from disk — use Download to keep your flipbooks.';
       return;
     }
-    $('libCount').textContent = books.length ? U.pad2(books.length) + ' saved' : '';
+    $('libCount').textContent = books.length ? U.pad2(books.length) + ' saved · ' : '';
     $('homeMeta').textContent = (books.length ? U.pad2(books.length) + ' flipbook' + (books.length === 1 ? '' : 's') : 'Nothing saved yet') + ' · saved in this browser · downloads are your permanent copies';
     var frag = document.createDocumentFragment();
     frag.appendChild(newCard());
@@ -475,7 +484,7 @@
       renderHome(); notify('Deleted “' + meta.title + '”');
       return;
     }
-    var data = await store.loadBook(meta.id);
+    var data = ex.normalize(await store.loadBook(meta.id));   // books saved by any older version
     if (!data) { notify('That flipbook is missing from storage', true); return; }
     if (action === 'read') openReader(data);
     else if (action === 'dl') download(data);
@@ -484,7 +493,7 @@
       if (state.editingId !== meta.id || !state.dirty) {
         try { state.pages = await S.importers.pagesFromData(data, progress); }
         finally { $('status').hidden = true; }
-        state.editingId = meta.id; state.dirty = false; setTitle(data.title);
+        state.editingId = meta.id; state.dirty = false; state.extra = data; setTitle(data.title);
         saveDraft();
       }
       show('edit');
@@ -496,10 +505,11 @@
     for (var i = 0; i < files.length; i++) {
       progress('Importing ' + files[i].name, i / files.length);
       try {
-        var data = ex.parse(await files[i].text());
+        var data = ex.parse(await files[i].text());          // any version → current shape
         if (!data) throw new Error('not a flipbook');
-        var pages = await S.importers.pagesFromData(data);   // normalises older files (thumbs + ratios)
-        await store.saveBook(U.uid(), ex.toData(data.title, pages));
+        noteFileVersion(data.appVersion);
+        var pages = await S.importers.pagesFromData(data);   // fills in thumbs + ratios for older files
+        await store.saveBook(U.uid(), Object.assign({}, data, ex.toData(data.title, pages)));
         ok++;
       } catch (e) {
         console.warn(e);
@@ -513,14 +523,52 @@
   $('resumeGo').onclick = function () { show('edit'); };
   $('resumeDiscard').onclick = function () {
     if (!confirm('Discard the unsaved changes to “' + (state.title || 'Untitled flipbook') + '”?')) return;
-    state.pages = []; state.title = ''; state.editingId = null; state.dirty = false;
+    state.pages = []; state.title = ''; state.editingId = null; state.dirty = false; state.extra = null;
     $('title').value = '';
     saveDraft(); renderHome();
   };
 
+  // ======================================================== version: shown, never forced
+  // The app is offline, so it can't check for updates. It shows its version (compare with the
+  // website), and at most ONCE per reason shows a quiet note that a newer version may exist:
+  //   • a flipbook you opened was made with a newer version, or
+  //   • this copy is more than AGE_DAYS old.
+  // Once shown (dismissed or not), that note never comes back.
+  var AGE_DAYS = 120;
+  $('appVersion').textContent = BUILD.version ? 'v' + BUILD.version : '';
+  $('noticeLink').href = BUILD.site || '#';
+  $('noticeClose').onclick = function () { $('notice').hidden = true; };
+
+  async function showNoticeOnce(key, text) {
+    if (await store.getKV('notice:' + key)) return false;
+    await store.setKV('notice:' + key, Date.now());
+    $('noticeText').textContent = text;
+    $('notice').hidden = false;
+    return true;
+  }
+  /** Called with the appVersion of every flipbook file that's opened or imported. */
+  async function noteFileVersion(v) {
+    if (!v || !BUILD.version || U.compareVersions(v, BUILD.version) <= 0) return;
+    var newest = await store.getKV('newest-seen');
+    if (!newest || U.compareVersions(v, newest) > 0) await store.setKV('newest-seen', v);
+    showNoticeOnce('newer:' + v, 'This flipbook was made with Flipbook Studio v' + v + ' and you have v' + BUILD.version + '. It opens fine; a newer version is on the website whenever you want it.');
+  }
+  S.onFileVersion = noteFileVersion;   // used by importers.js when a flipbook file is added
+  async function checkVersionOnBoot() {
+    if (!BUILD.version) return;
+    var newest = await store.getKV('newest-seen');
+    if (newest && U.compareVersions(newest, BUILD.version) > 0 &&
+        await showNoticeOnce('newer:' + newest, 'You’ve opened flipbooks made with Flipbook Studio v' + newest + '. This copy is v' + BUILD.version + '. A newer version is on the website whenever you want it.')) return;
+    var built = Date.parse(BUILD.date);
+    if (built && Date.now() - built > AGE_DAYS * 864e5) {
+      var when = new Date(built).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      showNoticeOnce('age:' + BUILD.version, 'This copy (v' + BUILD.version + ') is from ' + when + '. There may be a newer version on the website, whenever you want it.');
+    }
+  }
+
   // ======================================================== boot: always land on Home
-  loadDraft().then(function () { show('home'); });
+  loadDraft().then(function () { show('home'); checkVersionOnBoot(); });
 
   // Hooks for the automated end-to-end tests (tests/e2e.mjs).
-  S.app = { state: state, addFiles: addFiles, currentData: currentData, openReader: openReader, closeReader: closeReader, show: show };
+  S.app = { state: state, addFiles: addFiles, currentData: currentData, openReader: openReader, closeReader: closeReader, show: show, checkVersionOnBoot: checkVersionOnBoot };
 })(window.Studio);

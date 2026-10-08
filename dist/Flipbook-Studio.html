@@ -222,6 +222,11 @@ button, input, select { font: inherit; color: inherit; }
 #navNew { margin-left: auto; }
 #navNew.is-active { box-shadow: inset 0 -3px 0 rgba(255,255,255,.55); }
 
+/* gentle version note: one quiet line, never a popup */
+.notice { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; padding: 10px 0 10px 14px; border-bottom: var(--hair); font: 400 13px/1.45 var(--sans); background: linear-gradient(var(--cornflower), var(--cornflower)) left / 4px 100% no-repeat; }
+.notice a { color: var(--ink); font-weight: 700; text-underline-offset: 3px; }
+.notice .link { font-size: 13px; margin-left: auto; }
+
 /* ---- rows ---------------------------------------------------------------- */
 .row { padding: 56px 0; border-bottom: var(--hair); }
 .pagehead { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 24px; padding: 64px 0 22px; }
@@ -369,7 +374,13 @@ button, input, select { font: inherit; color: inherit; }
   <header class="header">
     <div class="header-small">
       <span>Free · no account · works offline</span>
-      <span id="libCount" class="num"></span>
+      <span><span id="libCount" class="num"></span><span id="appVersion" class="num" title="Compare with the latest version on the website"></span></span>
+    </div>
+    <!-- gentle, dismissible "a newer version may exist" note (see app.js → versionNotice) -->
+    <div class="notice" id="notice" hidden>
+      <span id="noticeText"></span>
+      <a id="noticeLink" target="_blank" rel="noopener">Get the latest</a>
+      <button class="link" id="noticeClose">Don’t show again</button>
     </div>
     <nav class="mainnav" aria-label="Main">
       <button class="navlink" data-go="home" id="navHome">My flipbooks</button>
@@ -1268,6 +1279,14 @@ else if (typeof exports === 'object')
 </script>
 
 <!-- ───────────── Studio app ───────────── -->
+<script>
+  // Filled in by build.py. The app is offline, so this is how it knows what it is.
+  window.FS_BUILD = {
+    version: "2.6.0",
+    date: "2026-10-08",
+    site: "https://nandinitandon21.github.io/flipbook-studio/"
+  };
+</script>
 <script>/* ==========================================================================
    util.js — small shared helpers. Creates the global `Studio` namespace
    that every other studio module attaches to.
@@ -1336,7 +1355,18 @@ window.Studio = window.Studio || {};
     return (s || 'flipbook').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100) || 'flipbook';
   }
 
+  /** Compare "2.10.1" vs "2.9" numerically. Returns 1, 0 or -1. Unknown/empty counts as oldest. */
+  function compareVersions(a, b) {
+    var pa = String(a || '0').split('.').map(Number), pb = String(b || '0').split('.').map(Number);
+    for (var i = 0; i < Math.max(pa.length, pb.length); i++) {
+      var x = pa[i] || 0, y = pb[i] || 0;
+      if (x !== y) return x > y ? 1 : -1;
+    }
+    return 0;
+  }
+
   S.util = {
+    compareVersions: compareVersions,
     uid: uid, loadImage: loadImage, whiteCanvas: whiteCanvas, thumbFrom: thumbFrom,
     pageFromCanvas: pageFromCanvas, round4: round4, pad2: pad2, naturalCompare: naturalCompare,
     nextFrame: nextFrame, escapeHtml: escapeHtml, cleanName: cleanName
@@ -1350,6 +1380,10 @@ window.Studio = window.Studio || {};
      meta   {id, title, count, cover, searchable, created, updated}  (cheap list)
      books  {id, data}                                                (full flipbook)
      kv     {k:'draft', ...}                                          (autosaved board)
+
+   Compatibility rule: never rename or delete stores/fields. New fields are optional,
+   and readers (exporter.normalize, app.loadDraft) fill in defaults for older records.
+   A schema change must bump the indexedDB.open() version and migrate in onupgradeneeded.
 
    If the browser refuses storage (some browsers do for files opened from disk),
    `available` becomes false and the UI explains that downloads are the way to keep work.
@@ -1434,6 +1468,10 @@ window.Studio = window.Studio || {};
   }
   function loadDraft() { return get('kv', 'draft'); }
 
+  /** Small settings (e.g. which version notices were already shown). Same 'kv' store, no schema change. */
+  function getKV(k) { return get('kv', k).then(function (r) { return r ? r.v : undefined; }).catch(function () { return undefined; }); }
+  function setKV(k, v) { return tx(['kv'], 'readwrite', function (t) { t.objectStore('kv').put({ k: k, v: v }); }).catch(function () {}); }
+
   /** Ask the browser not to evict our data under storage pressure. */
   function persist() {
     if (navigator.storage && navigator.storage.persist) return navigator.storage.persist().catch(function () {});
@@ -1443,7 +1481,7 @@ window.Studio = window.Studio || {};
   S.storage = {
     available: true,
     open: open, saveBook: saveBook, deleteBook: deleteBook, loadBook: loadBook, listBooks: listBooks,
-    getMeta: getMeta, saveDraft: saveDraft, loadDraft: loadDraft, persist: persist
+    getMeta: getMeta, saveDraft: saveDraft, loadDraft: loadDraft, getKV: getKV, setKV: setKV, persist: persist
   };
 })(window.Studio);
 
@@ -1672,8 +1710,9 @@ window.Studio = window.Studio || {};
 
   // ---------------------------------------------------------------- flipbook html
   async function fromFlipbook(file, opts, report) {
-    var data = S.exporter.parse(await file.text());
+    var data = S.exporter.parse(await file.text());   // any version → current shape
     if (!data) throw new Error('Not a Flipbook Studio file');
+    if (S.onFileVersion) S.onFileVersion(data.appVersion);
     return pagesFromData(data, report);
   }
 
@@ -1747,8 +1786,29 @@ window.Studio = window.Studio || {};
       thumbs: pages.map(function (p) { return p.thumb; }),
       ratios: pages.map(function (p) { return U.round4(p.w / p.h); }),
       text: pages.map(function (p) { return p.text || null; }),
+      appVersion: (window.FS_BUILD && window.FS_BUILD.version) || '',   // which app made it (since 2.6.0)
       created: new Date().toISOString()
     };
+  }
+
+  /**
+   * Bring book data from ANY version into the current shape, without losing anything.
+   *   v1 (1.x):   {title, aspect, pages, thumbs}                 → text/ratios filled with null
+   *   v2 (2.x):   + ratios, text, (appVersion since 2.6.0)
+   *   future:     unknown extra fields are kept untouched, so re-saving doesn't drop them
+   * Returns null if it isn't a flipbook at all.
+   */
+  function normalize(data) {
+    if (!data || !Array.isArray(data.pages) || !data.pages.length) return null;
+    var n = data.pages.length;
+    function list(a) { return Array.isArray(a) && a.length === n ? a : data.pages.map(function () { return null; }); }
+    data.title = typeof data.title === 'string' && data.title.trim() ? data.title : 'Untitled';
+    data.aspect = data.aspect > 0 ? data.aspect : 0.7071;
+    data.text = list(data.text);
+    data.ratios = list(data.ratios);
+    data.thumbs = list(data.thumbs);
+    data.appVersion = data.appVersion || '';
+    return data;
   }
 
   /** Render book data into a standalone flipbook HTML document. */
@@ -1759,7 +1819,7 @@ window.Studio = window.Studio || {};
     return '<!doctype html>\n<html lang="en"><head><meta charset="utf-8">\n' +
       '<meta http-equiv="Content-Security-Policy" content="' + EXPORT_CSP + '">\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
-      '<meta name="generator" content="Flipbook Studio">\n' +
+      '<meta name="generator" content="Flipbook Studio ' + U.escapeHtml(data.appVersion || '') + '">\n' +
       '<title>' + U.escapeHtml(data.title) + '</title>\n' +
       '<style>html,body{margin:0;height:100%;background:#BDD5E2}#flipbook{position:fixed;inset:0}</style>\n' +
       '<style>' + text('fonts-css') + '</style>\n' +
@@ -1778,10 +1838,7 @@ window.Studio = window.Studio || {};
     if (!node) return null;
     var data;
     try { data = JSON.parse(node.textContent); } catch (e) { return null; }
-    if (!data || !Array.isArray(data.pages)) return null;
-    data.title = data.title || 'Untitled';
-    data.text = data.text || data.pages.map(function () { return null; });   // v1 files had no text
-    return data;
+    return normalize(data);
   }
 
   /** Save to disk as a normal browser download (lands in the Downloads folder, or wherever
@@ -1802,7 +1859,7 @@ window.Studio = window.Studio || {};
 
   function fileName(title) { return U.cleanName(title) + ' — flipbook.html'; }
 
-  S.exporter = { toData: toData, buildHtml: buildHtml, parse: parse, saveFile: saveFile, fileName: fileName };
+  S.exporter = { toData: toData, normalize: normalize, buildHtml: buildHtml, parse: parse, saveFile: saveFile, fileName: fileName };
 })(window.Studio);
 
 /* ==========================================================================
@@ -1825,8 +1882,10 @@ window.Studio = window.Studio || {};
     pages: [],          // page records in reading order
     title: '',
     editingId: null,    // library id when editing a saved flipbook
-    dirty: false        // changes not yet saved to the library
+    dirty: false,       // changes not yet saved to the library
+    extra: null         // the saved book's original data: unknown (newer) fields survive a re-save
   };
+  var BUILD = window.FS_BUILD || { version: '', date: '', site: '' };
 
   // ======================================================== status line
   var statusTimer;
@@ -1866,7 +1925,7 @@ window.Studio = window.Studio || {};
   }
   function startNew() {
     if (!okToDiscard('Start a new flipbook')) return;
-    state.pages = []; state.title = ''; state.editingId = null; state.dirty = false;
+    state.pages = []; state.title = ''; state.editingId = null; state.dirty = false; state.extra = null;
     $('title').value = '';
     saveDraft();
     show('edit');
@@ -2098,7 +2157,7 @@ window.Studio = window.Studio || {};
     e.preventDefault(); depth = 0; board.classList.remove('is-dragging-files');
     var files = Array.prototype.slice.call(e.dataTransfer.files);
     if (current === 'home' && files.every(function (f) { return S.importers.kindOf(f) === 'html'; })) importToLibrary(files);
-    else if (current === 'home') { if (okToDiscard('Start a new flipbook')) { state.pages = []; state.title = ''; state.editingId = null; $('title').value = ''; addFiles(files); } }
+    else if (current === 'home') { if (okToDiscard('Start a new flipbook')) { state.pages = []; state.title = ''; state.editingId = null; state.extra = null; $('title').value = ''; addFiles(files); } }
     else addFiles(files);
   });
 
@@ -2148,8 +2207,11 @@ window.Studio = window.Studio || {};
   async function loadDraft() {
     try {
       var d = await store.loadDraft();
-      if (d && d.pages) {
-        state.pages = d.pages; state.editingId = d.editingId || null;
+      if (d && Array.isArray(d.pages)) {
+        state.pages = d.pages.filter(function (p) { return p && p.src; }).map(function (p) {
+          return { id: p.id || U.uid(), src: p.src, thumb: p.thumb || p.src, w: p.w || 1000, h: p.h || 1414, name: p.name || 'Page', text: p.text || null };
+        });
+        state.editingId = d.editingId || null;
         state.dirty = d.dirty == null ? !d.editingId && d.pages.length > 0 : d.dirty;  // older drafts had no flag
         setTitle(d.title);
       }
@@ -2157,7 +2219,11 @@ window.Studio = window.Studio || {};
   }
 
   // ======================================================== preview / save / download
-  function currentData() { return ex.toData(state.title || 'Untitled flipbook', state.pages); }
+  // Start from the original book (if editing one) so fields written by a newer version aren't dropped.
+  function currentData() {
+    var base = state.extra ? Object.assign({}, state.extra) : {};
+    return Object.assign(base, ex.toData(state.title || 'Untitled flipbook', state.pages));
+  }
 
   var reader = null;
   function openReader(data, startPage) {
@@ -2207,7 +2273,7 @@ window.Studio = window.Studio || {};
   async function refreshCount() {
     try {
       var n = (await store.listBooks()).length;
-      $('libCount').textContent = n ? U.pad2(n) + ' saved' : '';
+      $('libCount').textContent = n ? U.pad2(n) + ' saved · ' : '';
     } catch (e) { $('libCount').textContent = ''; }
   }
 
@@ -2229,7 +2295,7 @@ window.Studio = window.Studio || {};
       $('storageNote').textContent = 'This browser doesn’t allow storage for files opened from disk — use Download to keep your flipbooks.';
       return;
     }
-    $('libCount').textContent = books.length ? U.pad2(books.length) + ' saved' : '';
+    $('libCount').textContent = books.length ? U.pad2(books.length) + ' saved · ' : '';
     $('homeMeta').textContent = (books.length ? U.pad2(books.length) + ' flipbook' + (books.length === 1 ? '' : 's') : 'Nothing saved yet') + ' · saved in this browser · downloads are your permanent copies';
     var frag = document.createDocumentFragment();
     frag.appendChild(newCard());
@@ -2282,7 +2348,7 @@ window.Studio = window.Studio || {};
       renderHome(); notify('Deleted “' + meta.title + '”');
       return;
     }
-    var data = await store.loadBook(meta.id);
+    var data = ex.normalize(await store.loadBook(meta.id));   // books saved by any older version
     if (!data) { notify('That flipbook is missing from storage', true); return; }
     if (action === 'read') openReader(data);
     else if (action === 'dl') download(data);
@@ -2291,7 +2357,7 @@ window.Studio = window.Studio || {};
       if (state.editingId !== meta.id || !state.dirty) {
         try { state.pages = await S.importers.pagesFromData(data, progress); }
         finally { $('status').hidden = true; }
-        state.editingId = meta.id; state.dirty = false; setTitle(data.title);
+        state.editingId = meta.id; state.dirty = false; state.extra = data; setTitle(data.title);
         saveDraft();
       }
       show('edit');
@@ -2303,10 +2369,11 @@ window.Studio = window.Studio || {};
     for (var i = 0; i < files.length; i++) {
       progress('Importing ' + files[i].name, i / files.length);
       try {
-        var data = ex.parse(await files[i].text());
+        var data = ex.parse(await files[i].text());          // any version → current shape
         if (!data) throw new Error('not a flipbook');
-        var pages = await S.importers.pagesFromData(data);   // normalises older files (thumbs + ratios)
-        await store.saveBook(U.uid(), ex.toData(data.title, pages));
+        noteFileVersion(data.appVersion);
+        var pages = await S.importers.pagesFromData(data);   // fills in thumbs + ratios for older files
+        await store.saveBook(U.uid(), Object.assign({}, data, ex.toData(data.title, pages)));
         ok++;
       } catch (e) {
         console.warn(e);
@@ -2320,16 +2387,54 @@ window.Studio = window.Studio || {};
   $('resumeGo').onclick = function () { show('edit'); };
   $('resumeDiscard').onclick = function () {
     if (!confirm('Discard the unsaved changes to “' + (state.title || 'Untitled flipbook') + '”?')) return;
-    state.pages = []; state.title = ''; state.editingId = null; state.dirty = false;
+    state.pages = []; state.title = ''; state.editingId = null; state.dirty = false; state.extra = null;
     $('title').value = '';
     saveDraft(); renderHome();
   };
 
+  // ======================================================== version: shown, never forced
+  // The app is offline, so it can't check for updates. It shows its version (compare with the
+  // website), and at most ONCE per reason shows a quiet note that a newer version may exist:
+  //   • a flipbook you opened was made with a newer version, or
+  //   • this copy is more than AGE_DAYS old.
+  // Once shown (dismissed or not), that note never comes back.
+  var AGE_DAYS = 120;
+  $('appVersion').textContent = BUILD.version ? 'v' + BUILD.version : '';
+  $('noticeLink').href = BUILD.site || '#';
+  $('noticeClose').onclick = function () { $('notice').hidden = true; };
+
+  async function showNoticeOnce(key, text) {
+    if (await store.getKV('notice:' + key)) return false;
+    await store.setKV('notice:' + key, Date.now());
+    $('noticeText').textContent = text;
+    $('notice').hidden = false;
+    return true;
+  }
+  /** Called with the appVersion of every flipbook file that's opened or imported. */
+  async function noteFileVersion(v) {
+    if (!v || !BUILD.version || U.compareVersions(v, BUILD.version) <= 0) return;
+    var newest = await store.getKV('newest-seen');
+    if (!newest || U.compareVersions(v, newest) > 0) await store.setKV('newest-seen', v);
+    showNoticeOnce('newer:' + v, 'This flipbook was made with Flipbook Studio v' + v + ' and you have v' + BUILD.version + '. It opens fine; a newer version is on the website whenever you want it.');
+  }
+  S.onFileVersion = noteFileVersion;   // used by importers.js when a flipbook file is added
+  async function checkVersionOnBoot() {
+    if (!BUILD.version) return;
+    var newest = await store.getKV('newest-seen');
+    if (newest && U.compareVersions(newest, BUILD.version) > 0 &&
+        await showNoticeOnce('newer:' + newest, 'You’ve opened flipbooks made with Flipbook Studio v' + newest + '. This copy is v' + BUILD.version + '. A newer version is on the website whenever you want it.')) return;
+    var built = Date.parse(BUILD.date);
+    if (built && Date.now() - built > AGE_DAYS * 864e5) {
+      var when = new Date(built).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      showNoticeOnce('age:' + BUILD.version, 'This copy (v' + BUILD.version + ') is from ' + when + '. There may be a newer version on the website, whenever you want it.');
+    }
+  }
+
   // ======================================================== boot: always land on Home
-  loadDraft().then(function () { show('home'); });
+  loadDraft().then(function () { show('home'); checkVersionOnBoot(); });
 
   // Hooks for the automated end-to-end tests (tests/e2e.mjs).
-  S.app = { state: state, addFiles: addFiles, currentData: currentData, openReader: openReader, closeReader: closeReader, show: show };
+  S.app = { state: state, addFiles: addFiles, currentData: currentData, openReader: openReader, closeReader: closeReader, show: show, checkVersionOnBoot: checkVersionOnBoot };
 })(window.Studio);
 </script>
 </body>

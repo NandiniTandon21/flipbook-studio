@@ -120,8 +120,9 @@
 
   // ---------------------------------------------------------------- flipbook html
   async function fromFlipbook(file, opts, report) {
-    var data = S.exporter.parse(await file.text());
+    var data = S.exporter.parse(await file.text());   // any version → current shape
     if (!data) throw new Error('Not a Flipbook Studio file');
+    if (S.onFileVersion) S.onFileVersion(data.appVersion);
     return pagesFromData(data, report);
   }
 

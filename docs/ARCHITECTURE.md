@@ -75,6 +75,17 @@ Workers are the hard part. From `file://`, a worker can't `importScripts()` anot
 
 `build.py` replaces each `/*@@NAME@@*/` marker in `src/studio/index.html` (see `PARTS` in the script). It escapes `</script` and `<!--` in inlined code and base64-encodes the fonts and language model. It uses only the standard library.
 
+## Compatibility rules
+
+Every new version must open everything older versions produced, and should tolerate newer files.
+
+* **Additive only.** Book data, library records, and drafts only ever *gain* optional fields. Never rename or remove a field or an IndexedDB store. A real schema change must bump `indexedDB.open(..., N)` and migrate in `onupgradeneeded`.
+* **Normalise on the way in.** `exporter.normalize()` turns any book data (v1 = `{title, aspect, pages, thumbs}`, v2 = `+ ratios, text, appVersion`, or future) into the current shape. Drafts are normalised in `app.loadDraft()`. The viewer tolerates missing `text`/`ratios`.
+* **Keep unknown fields.** Imports and edits merge the original data (`state.extra`) under the new data, so fields written by a newer app survive a re-save.
+* **Storage is shared across copies.** In Chromium, Firefox, and WebKit, every `file://` page shares the same IndexedDB, so a newly downloaded copy sees the existing library.
+* **Version awareness without the network.** `build.py` stamps `FS_BUILD = {version, date}`. The app shows the version and stores `newest-seen` (the highest `appVersion` among opened files). It shows a single-line note once per reason (`notice:newer:<v>`, `notice:age:<v>`, kept in the `kv` store) and never again.
+* `tests/compat.mjs` enforces all of this in three engines.
+
 ## Storage
 
 `storage.js` uses IndexedDB `flipbook-studio` with three stores:
