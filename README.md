@@ -35,13 +35,6 @@ There's nothing to install and you don't need to be online. The same file works 
 - **More OCR languages.** Tesseract supports 100+ languages, but each language model adds about 2–15 MB. The plan is optional *language packs*: download a language file once, drop it into Studio, and it's kept offline in the Library storage. That way the app itself stays small.
 - **CJK PDF text.** Bundle pdf.js character maps (cMaps) so text extraction works for every Chinese, Japanese, and Korean PDF.
 
-## Design
-
-**Palette:** white (background), plum red `#7A1E3C` (the single ink, plus the filled main buttons), deep plum `#401F28` (hover), pale cornflower `#BDD5E2` (reader and demo background, drop zone, highlights), and bone `#F5F1EC` (page sheets). **Layout** (modelled on utrecht.jp): a slim left column with the logo and newspaper-style margin notes, plain text-link navigation, and content separated by hairline rules. No boxes, lots of space. The app, the reader, exported flipbooks, and the website all share it.
-
-## Typography
-
-One grotesk throughout, like utrecht.jp: **GT America** ([Grilli Type](https://www.grillitype.com/typeface/gt-america)) if it's installed on your computer, otherwise the bundled **Archivo** (SIL OFL), the closest free match. GT America is never bundled into the app or your exported flipbooks, because it's a commercial font.
 
 ## Updating & compatibility
 
